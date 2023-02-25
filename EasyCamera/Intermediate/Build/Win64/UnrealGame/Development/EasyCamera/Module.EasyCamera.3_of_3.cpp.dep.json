@@ -1,0 +1,39 @@
+{
+    "Version": "1.2",
+    "Data": {
+        "Source": "d:\\unrealprojects\\ecameratest\\plugins\\easycamera\\intermediate\\build\\win64\\unrealgame\\development\\easycamera\\module.easycamera.3_of_3.cpp",
+        "ProvidedModule": "",
+        "PCH": "d:\\unrealprojects\\ecameratest\\intermediate\\build\\win64\\ecameratest\\development\\engine\\sharedpch.engine.shadowerrors.h.pch",
+        "Includes": [
+            "d:\\unrealprojects\\ecameratest\\plugins\\easycamera\\intermediate\\build\\win64\\unrealgame\\development\\easycamera\\definitions.easycamera.h",
+            "d:\\unrealprojects\\ecameratest\\plugins\\easycamera\\source\\easycamera\\private\\utils\\ecameralibrary.cpp",
+            "d:\\unrealprojects\\ecameratest\\plugins\\easycamera\\source\\easycamera\\public\\utils\\ecameralibrary.h",
+            "d:\\unrealprojects\\ecameratest\\plugins\\easycamera\\source\\easycamera\\public\\utils\\ecameratypes.h",
+            "d:\\unrealengine\\ue_5.1\\engine\\source\\runtime\\engine\\classes\\kismet\\kismetmathlibrary.h",
+            "d:\\unrealengine\\ue_5.1\\engine\\intermediate\\build\\win64\\unrealgame\\inc\\engine\\uht\\kismetmathlibrary.generated.h",
+            "d:\\unrealengine\\ue_5.1\\engine\\source\\runtime\\engine\\classes\\kismet\\kismetmathlibrary.inl",
+            "d:\\unrealprojects\\ecameratest\\plugins\\easycamera\\intermediate\\build\\win64\\unrealgame\\inc\\easycamera\\uht\\ecameratypes.generated.h",
+            "d:\\unrealprojects\\ecameratest\\plugins\\easycamera\\intermediate\\build\\win64\\unrealgame\\inc\\easycamera\\uht\\ecameralibrary.generated.h",
+            "d:\\unrealprojects\\ecameratest\\plugins\\easycamera\\source\\easycamera\\public\\core\\ecamerabase.h",
+            "d:\\unrealengine\\ue_5.1\\engine\\source\\runtime\\engine\\classes\\camera\\cameraactor.h",
+            "d:\\unrealengine\\ue_5.1\\engine\\intermediate\\build\\win64\\unrealgame\\inc\\engine\\uht\\cameraactor.generated.h",
+            "d:\\unrealprojects\\ecameratest\\plugins\\easycamera\\source\\easycamera\\public\\core\\ecamerasettingscomponent.h",
+            "d:\\unrealprojects\\ecameratest\\plugins\\easycamera\\intermediate\\build\\win64\\unrealgame\\inc\\easycamera\\uht\\ecamerasettingscomponent.generated.h",
+            "d:\\unrealprojects\\ecameratest\\plugins\\easycamera\\intermediate\\build\\win64\\unrealgame\\inc\\easycamera\\uht\\ecamerabase.generated.h",
+            "d:\\unrealprojects\\ecameratest\\plugins\\easycamera\\source\\easycamera\\public\\core\\ecameramanager.h",
+            "d:\\unrealprojects\\ecameratest\\plugins\\easycamera\\intermediate\\build\\win64\\unrealgame\\inc\\easycamera\\uht\\ecameramanager.generated.h",
+            "d:\\unrealengine\\ue_5.1\\engine\\source\\runtime\\engine\\classes\\kismet\\gameplaystatics.h",
+            "d:\\unrealengine\\ue_5.1\\engine\\source\\runtime\\engine\\classes\\kismet\\kismetsystemlibrary.h",
+            "d:\\unrealengine\\ue_5.1\\engine\\source\\runtime\\coreuobject\\public\\uobject\\propertyaccessutil.h",
+            "d:\\unrealengine\\ue_5.1\\engine\\source\\runtime\\coreuobject\\public\\assetregistry\\arfilter.h",
+            "d:\\unrealengine\\ue_5.1\\engine\\intermediate\\build\\win64\\unrealgame\\inc\\engine\\uht\\kismetsystemlibrary.generated.h",
+            "d:\\unrealengine\\ue_5.1\\engine\\source\\runtime\\engine\\classes\\sound\\dialoguetypes.h",
+            "d:\\unrealengine\\ue_5.1\\engine\\intermediate\\build\\win64\\unrealgame\\inc\\engine\\uht\\dialoguetypes.generated.h",
+            "d:\\unrealengine\\ue_5.1\\engine\\source\\runtime\\engine\\classes\\kismet\\gameplaystaticstypes.h",
+            "d:\\unrealengine\\ue_5.1\\engine\\intermediate\\build\\win64\\unrealgame\\inc\\engine\\uht\\gameplaystaticstypes.generated.h",
+            "d:\\unrealengine\\ue_5.1\\engine\\intermediate\\build\\win64\\unrealgame\\inc\\engine\\uht\\gameplaystatics.generated.h"
+        ],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}

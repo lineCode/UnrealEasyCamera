@@ -1,0 +1,64 @@
+{
+	"RemapUnityFiles": 
+	{
+		"Module.EasyCamera.1_of_3.cpp.obj": [
+			"ConfinerExtension.gen.cpp.obj",
+			"ControlAim.gen.cpp.obj",
+			"CraneFollow.gen.cpp.obj",
+			"CurvedCameraExtension.gen.cpp.obj",
+			"DeoccluderExtension.gen.cpp.obj",
+			"EasyCamera.init.gen.cpp.obj",
+			"ECameraBase.gen.cpp.obj",
+			"ECameraComponentAim.gen.cpp.obj",
+			"ECameraComponentBase.gen.cpp.obj",
+			"ECameraComponentFollow.gen.cpp.obj",
+			"ECameraExtensionBase.gen.cpp.obj",
+			"ECameraGroupActor.gen.cpp.obj",
+			"ECameraGroupActorComponent.gen.cpp.obj",
+			"ECameraHUD.gen.cpp.obj",
+			"ECameraLibrary.gen.cpp.obj",
+			"ECameraManager.gen.cpp.obj",
+			"ECameraSettingsComponent.gen.cpp.obj"
+		],
+		"Module.EasyCamera.2_of_3.cpp.obj": [
+			"ECameraTypes.gen.cpp.obj",
+			"EPlayerCameraManager.gen.cpp.obj",
+			"FramingFollow.gen.cpp.obj",
+			"HardLockAim.gen.cpp.obj",
+			"HardLockFollow.gen.cpp.obj",
+			"OrbitFollow.gen.cpp.obj",
+			"RailFollow.gen.cpp.obj",
+			"ResolveGroupActorExtension.gen.cpp.obj",
+			"SimpleFollow.gen.cpp.obj",
+			"TargetingAim.gen.cpp.obj",
+			"ControlAim.cpp.obj",
+			"CraneFollow.cpp.obj",
+			"ECameraComponentAim.cpp.obj",
+			"ECameraComponentFollow.cpp.obj",
+			"FramingFollow.cpp.obj",
+			"HardLockAim.cpp.obj",
+			"HardLockFollow.cpp.obj",
+			"OrbitFollow.cpp.obj",
+			"RailFollow.cpp.obj",
+			"SimpleFollow.cpp.obj",
+			"TargetingAim.cpp.obj",
+			"ECameraBase.cpp.obj",
+			"ECameraComponentBase.cpp.obj",
+			"ECameraManager.cpp.obj",
+			"ECameraSettingsComponent.cpp.obj",
+			"EPlayerCameraManager.cpp.obj",
+			"EasyCamera.cpp.obj",
+			"ConfinerExtension.cpp.obj",
+			"CurvedCameraExtension.cpp.obj",
+			"DeoccluderExtension.cpp.obj",
+			"ECameraExtensionBase.cpp.obj",
+			"ResolveGroupActorExtension.cpp.obj",
+			"ECameraGroupActor.cpp.obj",
+			"ECameraGroupActorComponent.cpp.obj",
+			"ECameraHUD.cpp.obj"
+		],
+		"Module.EasyCamera.3_of_3.cpp.obj": [
+			"ECameraLibrary.cpp.obj"
+		]
+	}
+}

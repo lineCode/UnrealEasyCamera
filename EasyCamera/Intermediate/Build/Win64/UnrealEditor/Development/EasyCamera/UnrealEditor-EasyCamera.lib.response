@@ -1,0 +1,14 @@
+/NOLOGO
+/errorReport:prompt
+/MACHINE:x64
+/SUBSYSTEM:WINDOWS
+/DEF
+/NAME:"UnrealEditor-EasyCamera.dll"
+/IGNORE:4221
+/NODEFAULTLIB
+"D:\UnrealProjects\ECameraTest\Intermediate\Build\Win64\ECameraTestEditor\Development\Engine\SharedPCH.Engine.ShadowErrors.h.obj"
+"D:\UnrealProjects\ECameraTest\Plugins\EasyCamera\Intermediate\Build\Win64\UnrealEditor\Development\EasyCamera\Module.EasyCamera.1_of_3.cpp.obj"
+"D:\UnrealProjects\ECameraTest\Plugins\EasyCamera\Intermediate\Build\Win64\UnrealEditor\Development\EasyCamera\Module.EasyCamera.2_of_3.cpp.obj"
+"D:\UnrealProjects\ECameraTest\Plugins\EasyCamera\Intermediate\Build\Win64\UnrealEditor\Development\EasyCamera\Module.EasyCamera.3_of_3.cpp.obj"
+"D:\UnrealProjects\ECameraTest\Plugins\EasyCamera\Intermediate\Build\Win64\UnrealEditor\Development\EasyCamera\Default.rc2.res"
+/OUT:"D:\UnrealProjects\ECameraTest\Plugins\EasyCamera\Intermediate\Build\Win64\UnrealEditor\Development\EasyCamera\UnrealEditor-EasyCamera.lib"
