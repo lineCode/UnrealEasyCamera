@@ -35,7 +35,7 @@ Before going forward, you can visit [Showcases](#showcases) to take a look at th
 
 **Installation**
 
-- *Marketplace*. You can install EasyCamera from Unreal Engine marketplace. Select the `Marketplace` tab in Epic launcher, search `EasyCamera` and follow the installation instructions. This will automatically install EasyCamera to your Unreal Engine and works for all projects opened with the correct version Unreal editor.
+- (Unfinished) *Marketplace*. You can install EasyCamera from Unreal Engine marketplace. Select the `Marketplace` tab in Epic launcher, search `EasyCamera` and follow the installation instructions. This will automatically install EasyCamera to your Unreal Engine and works for all projects opened with the correct version Unreal editor.
 - *Github*: download source code from this github project (click the green button `Code` on the top right side and select `Download Zip`), and unzip it to your Unreal project's `Plugins` folder, e.g., `D:\UnrealProjects\MyProject\Plugins\`. If your project does not have a `Plugins` folder, just create one. You can safely delete the `README.md` file and the `Docs` directory if you do not need documentation on your local PC. The final path should be like this `D:\UnrealProjects\MyProject\Plugins\EasyCamera`.
 
 
