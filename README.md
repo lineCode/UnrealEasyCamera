@@ -6,4 +6,9 @@ Currently ***EasyCamera*** only supports Unreal Engine version 5.1. So before us
 
 For manuals of ***EasyCamera***, please refer to the [Manuals Of EasyCamera](Docs/ManualsOfEasyCamera.md) page. This page will guide you through the basic uses and advanced features of **EasyCamera**, and it will also give you some examples showcasing what it can do and how to basically set up your own cameras.
 
-You can also go to the [Gitbook page](https://sulleyyys-organization.gitbook.io/manuals-of-easycamera/) for a better reading experience,.
+You can also go to the [Gitbook page](https://sulleyyys-organization.gitbook.io/manuals-of-easycamera/) for a better reading experience.
+
+TODOs for version *alpha*:
+
+- A better implementation to receive input for **ControlAim**.
+- Implment *AimAssistExtension*.
