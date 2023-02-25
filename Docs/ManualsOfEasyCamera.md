@@ -577,6 +577,8 @@ HardLockAim uses exactly the rotation of the target actor, with rotation offset 
 
 |Parameter| |Description|
 |  :---  | :--- |:--- |
+|Enhanced Input|| Whether you are using EnhancedInput. If true, the input will read from enhanced input. Otherwise, it reads from mouse input. |
+|Look Action|| The input action to consume camera rotation. Ensure this action is correct. |
 |Recentering Params||A set of parameters defining whether and when to recenter camera to the *Heading* direction.|
 ||Recentering|Whether to enable recentering.|
 ||Heading| The heading direction in which camera recenters. *Target Forward* uses the **following target actos**'s forward direction as heading. *World Forward* uses the world space forward vector, i.e., (1, 0, 0), as heading. *Hard Forward* uses a hard specified forward vector. *Soft Forward* leverages two actors' positions to determine the heading. |
