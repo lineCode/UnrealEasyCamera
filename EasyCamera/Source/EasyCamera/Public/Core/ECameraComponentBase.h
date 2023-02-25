@@ -61,9 +61,9 @@ public:
 public:
 	/** Check if this component is valid. Currently is of no use. */
 	virtual bool IsValid();
-	/** This function should be used to reset internal variables when the owning camera becomes view target. */
+	/** This function should be used to reset internal variables when the owning camera becomes view target. Only used internally. */
 	virtual void ResetOnBecomeViewTarget(APlayerController* PC, bool bPreserveState) { }
-	/** This function should be used to reset internal variables when the owning camera exits view target. */
+	/** This function should be used to reset internal variables when the owning camera exits view target. Only used internally. */
 	virtual void ResetOnEndViewTarget(APlayerController* PC) { }
 	/** Do some cleaning work when destroyed. Currently is of no use. */
 	virtual void BeginDestroy() override;

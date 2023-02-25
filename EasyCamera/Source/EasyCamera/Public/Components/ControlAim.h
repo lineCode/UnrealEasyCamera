@@ -6,6 +6,8 @@
 #include "Components/ECameraComponentAim.h"
 #include "ControlAim.generated.h"
 
+class UEnhancedInputLocalPlayerSubsystem;
+
 /**
  * Player input camera rotation. You do not need to, and should not specify an AimTarget.
  */
@@ -18,6 +20,14 @@ public:
 	UControlAim();
 
 protected:
+	/** Whether you are using EnhancedInput. If true, the input will read from enhanced input. Otherwise, it reads from mouse input. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	bool bEnhancedInput;
+
+	/** The input action to consume camera rotation. Ensure this action is correct. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "bEnhancedInput == true"))
+	class UInputAction* LookAction;
+
 	/** Recentering parameters. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FRecenteringParams RecenteringParams;
@@ -78,9 +88,13 @@ protected:
 	float CachedMouseDeltaY;
 	/** Already wait time. */
 	float WaitElaspedTime;
+
+	/** Enhanched input subsystem. */
+	UEnhancedInputLocalPlayerSubsystem* Subsystem;
 	
 public:
 	virtual void UpdateComponent_Implementation(float DeltaTime) override;
+	virtual void ResetOnBecomeViewTarget(APlayerController* PC, bool bPreserveState) override;
 
 	/** Get input mouse delta. */
 	void GetMouseDelta();

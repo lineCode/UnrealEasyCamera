@@ -40,7 +40,8 @@ public class EasyCamera : ModuleRules
                 "InputCore",
 				"HeadMountedDisplay",
                 "GameplayCameras",
-				"CinematicCamera"
+				"CinematicCamera",
+				"EnhancedInput"
             }
             );
 

@@ -64,8 +64,13 @@ void UFramingFollow::UpdateComponent_Implementation(float DeltaTime)
 		/** First move the camera along the local space X axis. */
 		SetForwardDelta(LocalSpaceFollowPosition, TempDeltaPosition, AdaptiveCameraDistance);
 
+		/** Damp delta x and apply it. */
+		ApplyForwardDelta(TempDeltaPosition, DeltaTime);
+
 		/** Then move the camera along the local space YZ plane. */
-		SetYZPlaneDelta(LocalSpaceFollowPosition, TempDeltaPosition, RealScreenOffset, AdaptiveCameraDistance);
+		/** First need to re-calculate local space position as we've altered camera X position. */
+		LocalSpaceFollowPosition = UECameraLibrary::GetLocalSpacePosition(GetOwningActor(), FollowPosition);
+		SetYZPlaneDelta(LocalSpaceFollowPosition, TempDeltaPosition, RealScreenOffset);
 
 		/** Get damped delta position. */
 		FVector DampedDeltaPosition = DampDeltaPosition(LocalSpaceFollowPosition, TempDeltaPosition, DeltaTime, RealScreenOffset);
@@ -117,9 +122,19 @@ void UFramingFollow::SetForwardDelta(const FVector& LocalSpaceFollowPosition, FV
 	TempDeltaPosition.X = LocalSpaceFollowPosition.X - RealCameraDistance;
 }
 
-void UFramingFollow::SetYZPlaneDelta(const FVector& LocalSpaceFollowPosition, FVector& TempDeltaPosition, const FVector2f& RealScreenOffset, float RealCameraDistance)
+void UFramingFollow::ApplyForwardDelta(FVector& TempDeltaPosition, float DeltaTime)
 {
-	float W = UKismetMathLibrary::DegTan(OwningCamera->GetCameraComponent()->FieldOfView / 2.0f) * RealCameraDistance * 2.0f;
+	double DampedDeltaX;
+	UECameraLibrary::DamperValue(DampParams, DeltaTime, TempDeltaPosition.X, FollowDamping.X, DampedDeltaX);
+	/** Immediately apply it. */
+	GetOwningActor()->AddActorLocalOffset(FVector(DampedDeltaX, 0, 0));
+	/** Reset delta x to avoid duplicate calculation. */
+	TempDeltaPosition.X = 0;
+}
+
+void UFramingFollow::SetYZPlaneDelta(const FVector& LocalSpaceFollowPosition, FVector& TempDeltaPosition, const FVector2f& RealScreenOffset)
+{
+	float W = UKismetMathLibrary::DegTan(OwningCamera->GetCameraComponent()->FieldOfView / 2.0f) * LocalSpaceFollowPosition.X * 2.0f;
 	float ExpectedPositionY = W * RealScreenOffset.X;
 	float ExpectedPositionZ = W / OwningCamera->GetCameraComponent()->AspectRatio * RealScreenOffset.Y;
 

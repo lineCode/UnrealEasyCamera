@@ -61,7 +61,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "-1.0", ClampMax = "1.0"))
 	FVector2f ScreenOffsetHeight;
 
-protected:
 	/** Real follow position. */
 	FVector RealFollowPosition;
 	/** Local space follow position. */
@@ -99,8 +98,11 @@ public:
 	/** Set delta position along the local X axis. */
 	void SetForwardDelta(const FVector& LocalSpaceFollowPosition, FVector& TempDeltaPosition, float RealCameraDistance);
 
+	/** Damp delta x and apply it. */
+	void ApplyForwardDelta(FVector& TempDeltaPosition, float DeltaTime);
+
 	/** Get delta position along the local YZ plane. */
-	void SetYZPlaneDelta(const FVector& LocalSpaceFollowPosition, FVector& TempDeltaPosition, const FVector2f& RealScreenOffset, float RealCameraDistance);
+	void SetYZPlaneDelta(const FVector& LocalSpaceFollowPosition, FVector& TempDeltaPosition, const FVector2f& RealScreenOffset);
 
 	/** Damp temporary delta position. */
 	FVector DampDeltaPosition(const FVector& LocalSpaceFollowPosition, const FVector& TempDeltaPosition, float DeltaTime, const FVector2f& RealScreenOffset);

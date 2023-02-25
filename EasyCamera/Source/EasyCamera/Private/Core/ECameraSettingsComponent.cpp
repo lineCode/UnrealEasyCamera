@@ -223,10 +223,9 @@ void UECameraSettingsComponent::EndViewTarget(APlayerController* PC)
 void UECameraSettingsComponent::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(PropertyChangedEvent);
-	UKismetSystemLibrary::PrintString(this, "[DEBUG INFO]: Length of ComponentContainer before is " + FString::FromInt(ComponentContainer.Num()) + "(ECameraSettingsComponent.cpp)", true, true, FLinearColor(0.8F,0.8F,0.0F,1.0F));
 	if (PropertyChangedEvent.Property != nullptr)
 	{
-		UKismetSystemLibrary::PrintString(this, "[DEBUG INFO]: " + PropertyChangedEvent.Property->GetName() + "(ECameraSettingsComponent.cpp)");
+		// UKismetSystemLibrary::PrintString(this, "[DEBUG INFO]: " + PropertyChangedEvent.Property->GetName() + "(ECameraSettingsComponent.cpp)");
 		const FName PropertyName(PropertyChangedEvent.Property->GetName());
 		if (PropertyName == GET_MEMBER_NAME_CHECKED(UECameraSettingsComponent, FollowComponent)
 			|| PropertyName == GET_MEMBER_NAME_CHECKED(UECameraSettingsComponent, AimComponent)
@@ -234,7 +233,6 @@ void UECameraSettingsComponent::PostEditChangeProperty(FPropertyChangedEvent& Pr
 		{
 			InitializeECameraComponents();
 		}
-		UKismetSystemLibrary::PrintString(this, "[DEBUG INFO]: Length of ComponentContainer after is " + FString::FromInt(ComponentContainer.Num()) + "(ECameraSettingsComponent.cpp)", true, true, FLinearColor(0.8F, 0.0F, 0.8F, 1.0F));
 	}
 }
 #endif

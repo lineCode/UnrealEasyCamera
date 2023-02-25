@@ -7,11 +7,16 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
+#include "EnhancedPlayerInput.h"
+#include "InputActionValue.h"
 
 UControlAim::UControlAim()
 {
 	Stage = EStage::Aim;
 
+	bEnhancedInput = false;
 	HorizontalHeading = EHeading::WorldForward;
 	HorizontalHardForward = FVector(1, 0, 0);
 	HorizontalRange = FVector2f(-180, 180);
@@ -26,6 +31,11 @@ UControlAim::UControlAim()
 	CachedMouseDeltaX = 0.0f;
 	CachedMouseDeltaY = 0.0f;
 	WaitElaspedTime = 0.0f;
+}
+
+void UControlAim::ResetOnBecomeViewTarget(APlayerController* PC, bool bPreserveState)
+{
+	Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetOwningSettingComponent()->GetPlayerController()->GetLocalPlayer());
 }
 
 void UControlAim::UpdateComponent_Implementation(float DeltaTime)
@@ -45,12 +55,12 @@ void UControlAim::UpdateComponent_Implementation(float DeltaTime)
 	float ResultDeltaY = RawMouseDeltaY * VerticalSpeed;
 	
 	/** Damp, constrain and set camera yaw. */
-	ResultDeltaX += GetDampedMouseDelta(ResultDeltaX, true, DeltaTime);
+	ResultDeltaX = CachedMouseDeltaX + GetDampedMouseDelta(ResultDeltaX, true, DeltaTime);
 	float WrapYaw = ConstrainYaw(ResultDeltaX);
 	GetOwningActor()->AddActorWorldRotation(FRotator(0, ResultDeltaX + WrapYaw, 0));
 
 	/** Damp, constrain and set camera pitch. */
-	ResultDeltaY += GetDampedMouseDelta(ResultDeltaY, false, DeltaTime);
+	ResultDeltaY = CachedMouseDeltaY + GetDampedMouseDelta(ResultDeltaY, false, DeltaTime);
 	ConstrainPitch(ResultDeltaY);
 	GetOwningActor()->AddActorLocalRotation(FRotator(ResultDeltaY, 0, 0));
 
@@ -65,13 +75,36 @@ void UControlAim::UpdateComponent_Implementation(float DeltaTime)
 	}
 }
 
-/**
- * @TODO: Maybe should figure out a more robust way to get mouse delta.
- * EnhancedInput might be a workaround.
- */
 void UControlAim::GetMouseDelta()
 {
-	GetOwningSettingComponent()->GetPlayerController()->GetInputMouseDelta(RawMouseDeltaX, RawMouseDeltaY);
+	/** Read from mouse input. */
+	if (!bEnhancedInput)
+	{
+		GetOwningSettingComponent()->GetPlayerController()->GetInputMouseDelta(RawMouseDeltaX, RawMouseDeltaY);
+	}
+	/** Read from enhanced input. */
+	else
+	{
+		bool bSuccess = false;
+		if (Subsystem)
+		{
+			UEnhancedPlayerInput* PlayerInput = Subsystem->GetPlayerInput();
+			if (LookAction && PlayerInput)
+			{
+				FInputActionValue Value = PlayerInput->GetActionValue(LookAction);
+				FVector2D LookAxisVector = Value.Get<FVector2D>();
+				RawMouseDeltaX = LookAxisVector.X;
+				RawMouseDeltaY = -LookAxisVector.Y;
+
+				bSuccess = true;
+			}
+		}
+
+		if (!bSuccess)
+		{
+			GetOwningSettingComponent()->GetPlayerController()->GetInputMouseDelta(RawMouseDeltaX, RawMouseDeltaY);
+		}
+	}
 }
 
 float UControlAim::GetDampedMouseDelta(const float& MouseDelta, bool bIsHorizontal, const float& DeltaTime)
