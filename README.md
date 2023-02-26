@@ -15,4 +15,5 @@ You can also go to the [Gitbook page](https://sulleyyys-organization.gitbook.io/
 TODOs for version *alpha*:
 
 - [x] A better implementation to receive input for **ControlAim**.
-- [x] Implment **AimAssistExtension**, in ControlAim component.
+- [x] Implment **AimAssist**, in ControlAim component.
+- [ ] Implement **ProceduralMotionGeneration**. This functionality enables you to define custom camera motion curves by keyframing transforms in world space without opening Sequencer. Moreover, you can generate random motion curves based on the curve you just created.
