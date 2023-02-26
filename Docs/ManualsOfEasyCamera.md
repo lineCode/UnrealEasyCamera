@@ -579,6 +579,12 @@ HardLockAim uses exactly the rotation of the target actor, with rotation offset 
 |  :---  | :--- |:--- |
 |Enhanced Input|| Whether you are using EnhancedInput. If true, the input will read from enhanced input. Otherwise, it reads from mouse input. |
 |Look Action|| The input action to consume camera rotation. Ensure this action is correct. |
+|Aim Assist|| A set of parameters defining aim assist.|
+|| Enable Aim Assist | Whether to enable aim assist. |
+|| Target Types | Types of actors that are taken for aim assist. |
+|| Magnetic Radius | Magnetic radius, in screen space. |
+|| Magnetic Coefficient | Magnetic coefficient defining the strength of magnetic force. |
+|| Max Distance | If the target actor has a larger distance to camera than this value, it will be ignored. |
 |Recentering Params||A set of parameters defining whether and when to recenter camera to the *Heading* direction.|
 ||Recentering|Whether to enable recentering.|
 ||Heading| The heading direction in which camera recenters. *Target Forward* uses the **following target actos**'s forward direction as heading. *World Forward* uses the world space forward vector, i.e., (1, 0, 0), as heading. *Hard Forward* uses a hard specified forward vector. *Soft Forward* leverages two actors' positions to determine the heading. |
@@ -1190,6 +1196,33 @@ Get the EPlayerCameraManager actor in level.
 ||Index|Index in the player controller list, starting first with local players and then available remote ones.|
 |Output |||
 |  | Return Value | The current active `ECameraBase` actor in level. |
+
+### GetPositionWithLocalOffset(Actor)
+Get the position applied with local space offset. Input is actor.
+
+![](Pics/nodes/Library/getpositionwithlocaloffset.png)
+
+|Input / Output| |Description|
+|  :---  | :--- |:--- |
+|Input |||
+||Target Actor|An input actor in whose local space offset is applied|
+||Offset|Offset.|
+|Output |||
+|  | Return Value | The offset position. |
+
+### GetPositionWithLocalOffset(Rotation)
+Get the position applied with local space offset. Input is position and rotation.
+
+![](Pics/nodes/Library/getpositionwithlocalrotatedoffset.png)
+
+|Input / Output| |Description|
+|  :---  | :--- |:--- |
+|Input |||
+||Position| Target position. |
+||Rotation| Target rotation. |
+||Offset|Offset.|
+|Output |||
+|  | Return Value | The offset position. |
 
 ## ECameraGroupActorComponent
 ### GetGroupActorLocation

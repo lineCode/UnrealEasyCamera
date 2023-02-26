@@ -33,5 +33,6 @@ public:
 
 	void DrawRectOnScreenWithOffset(FLinearColor Color, FVector2f& ScreenOffset, FVector2f& ScreenOffsetWidth, FVector2f& ScreenOffsetHeight);
 	void DrawRectOnScreenWithPosition(FLinearColor Color, FVector& Position);
-	void DrawRectOnScreenForGroupActors(TArray<FBoundingWrappedActor>& TargetActors, FLinearColor Color);
+	void DrawRectOnScreenForGroupActors(FLinearColor Color, TArray<FBoundingWrappedActor>& TargetActors);
+	void DrawRectOnScreenForAimAssist(FLinearColor Color, UControlAim* ControlAim, const FAimAssist& AimAssist);
 };

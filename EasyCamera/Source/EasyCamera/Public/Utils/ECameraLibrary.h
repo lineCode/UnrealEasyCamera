@@ -151,4 +151,19 @@ public:
 	/** Get EPlayerCameraManager. */
 	UFUNCTION(BlueprintPure, Category = "ECamera|Utils", meta = (DisplayName = "GetEPlayerCameraManager", WorldContext = "WorldContextObject"))
 	static AEPlayerCameraManager* GetEPlayerCameraManager(const UObject* WorldContextObject, int32 index);
+
+	/** Get the position applied with local space offset. Input is actor.
+	 * @param TargetActor - An input actor in whose local space offset is applied.
+	 * @param Offset - Offset applied to the actor's local space.
+	 */
+	UFUNCTION(BlueprintPure, Category = "ECamera|Utils", meta = (DisplayName = "GetPositionWithLocalOffset(Actor)"))
+	static FVector GetPositionWithLocalOffset(AActor* TargetActor, const FVector& Offset);
+
+	/** Get the position applied with local space offset. Input is position and rotation.
+	 * @param Position - Target position.
+	 * @param Rotation - Target rotation.
+	 * @param Offset - Offset applied to the actor's local space.
+	 */
+	UFUNCTION(BlueprintPure, Category = "ECamera|Utils", meta = (DisplayName = "GetPositionWithLocalOffset(Rotation)"))
+	static FVector GetPositionWithLocalRotatedOffset(const FVector& Position, const FRotator& Rotation, const FVector& Offset);
 };

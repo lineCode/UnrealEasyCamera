@@ -33,7 +33,7 @@ void UFramingFollow::UpdateComponent_Implementation(float DeltaTime)
 {
 	if (FollowTarget != nullptr)
 	{
-		FVector FollowPosition = GetRealFollowPosition();
+		FVector FollowPosition = UECameraLibrary::GetPositionWithLocalOffset(FollowTarget.Get(), FollowOffset);
 
 		/** Get real screen offset. */
 		FVector AimPosition = FVector(0, 0, 0);
@@ -85,15 +85,6 @@ void UFramingFollow::UpdateComponent_Implementation(float DeltaTime)
 		RealFollowPosition = FollowPosition;
 		LocalFollowPosition = LocalSpaceFollowPosition;
 	}
-}
-
-FVector UFramingFollow::GetRealFollowPosition()
-{
-	FVector ActorLocation = FollowTarget->GetActorLocation();
-	FRotator ActorRotation = FollowTarget->GetActorRotation();
-	FVector LocalOffset = UKismetMathLibrary::GreaterGreater_VectorRotator(FollowOffset, ActorRotation);
-
-	return ActorLocation + LocalOffset;
 }
 
 FVector2f UFramingFollow::GetAdaptiveScreenOffset(const FVector& FollowPosition, const FVector& AimPosition)

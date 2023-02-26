@@ -653,3 +653,57 @@ public:
 		, BlendInTime(0.2f)
 		, BlendOutTime(0.2f) { }
 };
+
+/** A struct composed of an actor type and an offset vector. */
+USTRUCT(BlueprintType)
+struct FOffsetActorType
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	/** Actor type. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<AActor> ActorType;
+
+	/** Local space offset applied to actors of this type. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector Offset;
+
+	FOffsetActorType()
+		: Offset(FVector()) { }
+};
+
+/** A struct used to define aim assist. */
+USTRUCT(BlueprintType)
+struct FAimAssist
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	/** Whether to enable aim assist. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bEnableAimAssist;
+
+	/** Types of actors that are taken for aim assist. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FOffsetActorType> TargetTypes;
+
+	/** Magnetic radius, in screen space. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MagneticRadius;
+
+	/** Magnetic coefficient defining the strength of magnetic force. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MagneticCoefficient;
+
+	/** If the target actor has a larger distance to camera than this value, it will be ignored. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MaxDistance;
+
+	FAimAssist()
+		: bEnableAimAssist(false)
+		, MagneticRadius(50)
+		, MagneticCoefficient(1)
+		, MaxDistance(800)
+	{ }
+}; 

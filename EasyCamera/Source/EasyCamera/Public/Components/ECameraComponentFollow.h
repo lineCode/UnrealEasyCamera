@@ -34,12 +34,4 @@ public:
 	{
 		return FollowTarget.Get();
 	}
-
-public:
-	virtual FVector GetRealFollowPosition() 
-	{ 
-		if (FollowTarget != nullptr)
-			return FollowTarget->GetActorLocation();
-		else return GetOwningActor()->GetActorLocation();
-	}
 };

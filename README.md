@@ -15,4 +15,4 @@ You can also go to the [Gitbook page](https://sulleyyys-organization.gitbook.io/
 TODOs for version *alpha*:
 
 - [x] A better implementation to receive input for **ControlAim**.
-- [ ] Implment **AimAssistExtension**.
+- [x] Implment **AimAssistExtension**, in ControlAim component.

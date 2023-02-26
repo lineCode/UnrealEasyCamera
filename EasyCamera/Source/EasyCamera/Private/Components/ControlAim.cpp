@@ -17,6 +17,7 @@ UControlAim::UControlAim()
 	Stage = EStage::Aim;
 
 	bEnhancedInput = false;
+	AimAssist = FAimAssist();
 	HorizontalHeading = EHeading::WorldForward;
 	HorizontalHardForward = FVector(1, 0, 0);
 	HorizontalRange = FVector2f(-180, 180);
@@ -31,6 +32,8 @@ UControlAim::UControlAim()
 	CachedMouseDeltaX = 0.0f;
 	CachedMouseDeltaY = 0.0f;
 	WaitElaspedTime = 0.0f;
+	bInAimAssist = false;
+	OffsetInAimAssist = FVector();
 }
 
 void UControlAim::ResetOnBecomeViewTarget(APlayerController* PC, bool bPreserveState)
@@ -51,22 +54,52 @@ void UControlAim::UpdateComponent_Implementation(float DeltaTime)
 	}
 
 	/** Apply speed multiplier. */
-	float ResultDeltaX = RawMouseDeltaX * HorizontalSpeed;
-	float ResultDeltaY = RawMouseDeltaY * VerticalSpeed;
-	
+	RawMouseDeltaX = RawMouseDeltaX * HorizontalSpeed;
+	RawMouseDeltaY = RawMouseDeltaY * VerticalSpeed;
+
 	/** Damp, constrain and set camera yaw. */
-	ResultDeltaX = CachedMouseDeltaX + GetDampedMouseDelta(ResultDeltaX, true, DeltaTime);
+	float ResultDeltaX = CachedMouseDeltaX + GetDampedMouseDelta(RawMouseDeltaX, true, DeltaTime);
 	float WrapYaw = ConstrainYaw(ResultDeltaX);
-	GetOwningActor()->AddActorWorldRotation(FRotator(0, ResultDeltaX + WrapYaw, 0));
+	ResultDeltaX += WrapYaw;
 
 	/** Damp, constrain and set camera pitch. */
-	ResultDeltaY = CachedMouseDeltaY + GetDampedMouseDelta(ResultDeltaY, false, DeltaTime);
+	float ResultDeltaY = CachedMouseDeltaY + GetDampedMouseDelta(RawMouseDeltaY, false, DeltaTime);
 	ConstrainPitch(ResultDeltaY);
-	GetOwningActor()->AddActorLocalRotation(FRotator(ResultDeltaY, 0, 0));
+	
+	/** If not in aim assist. */
+	if (!bInAimAssist)
+	{
+		GetOwningActor()->AddActorWorldRotation(FRotator(0, ResultDeltaX, 0));
+		GetOwningActor()->AddActorLocalRotation(FRotator(ResultDeltaY, 0, 0));
+	}
+	else
+	{
+		/** Pitch first, then yaw. */
+		FVector2d ControlForce  = FVector2d(ResultDeltaY, ResultDeltaX);
+		FVector2d MagneticForce = FVector2d();
+		FVector2d FinalForce    = FVector2d();
+
+		if (ActorInAimAssist)
+		{
+			FVector OffsetTargetPosition = UECameraLibrary::GetPositionWithLocalOffset(ActorInAimAssist, OffsetInAimAssist);
+			FRotator DeltaRotation = UKismetMathLibrary::NormalizedDeltaRotator(UKismetMathLibrary::FindLookAtRotation(GetOwningActor()->GetActorLocation(), OffsetTargetPosition), GetOwningActor()->GetActorRotation());
+			
+			float lnResidual = FMath::Loge(0.1);
+			float Multiplier = FMath::Exp(lnResidual * ScreenDistanceInAimAssist / AimAssist.MagneticRadius);
+			MagneticForce = AimAssist.MagneticCoefficient * Multiplier * FVector2d(DeltaRotation.Pitch, DeltaRotation.Yaw);
+		}
+
+		FinalForce = ControlForce + MagneticForce;
+		GetOwningActor()->AddActorWorldRotation(FRotator(0, FinalForce.Y, 0));
+		GetOwningActor()->AddActorLocalRotation(FRotator(FinalForce.X, 0, 0));
+	}
 
 	/** Update cached delta. */
 	CachedMouseDeltaX = ResultDeltaX;
 	CachedMouseDeltaY = ResultDeltaY;
+
+	/** Check if there exists an actor that will be in aim assist. */
+	bInAimAssist = CheckAimAssist();
 
 	/** Sync with Controller. */
 	if (bSyncToController)
@@ -243,4 +276,42 @@ void UControlAim::ConstrainPitch(float& ResultDeltaY)
 	FRotator CameraRotation = GetOwningActor()->GetActorRotation();
 	if (CameraRotation.Pitch + ResultDeltaY > VerticalRange.Y) ResultDeltaY = VerticalRange.Y - CameraRotation.Pitch;
 	if (CameraRotation.Pitch + ResultDeltaY < VerticalRange.X) ResultDeltaY = VerticalRange.X - CameraRotation.Pitch;
+}
+
+/** @TODO: This function might be too time-consuming? Need improvement. */
+bool UControlAim::CheckAimAssist()
+{
+	if (AimAssist.bEnableAimAssist)
+	{
+		float ClosestDistance = 99999;
+		for (const FOffsetActorType& OffsetTargetType : AimAssist.TargetTypes)
+		{
+			TArray<AActor*> OutActors;
+			UGameplayStatics::GetAllActorsOfClass(GetWorld(), OffsetTargetType.ActorType, OutActors);
+			for (AActor* TargetActor : OutActors)
+			{
+				FVector RealPosition = UECameraLibrary::GetPositionWithLocalOffset(TargetActor, OffsetTargetType.Offset);
+				FVector LocalSpacePosition = UECameraLibrary::GetLocalSpacePosition(GetOwningActor(), RealPosition);
+
+				if (LocalSpacePosition.X > 0 && LocalSpacePosition.X <= AimAssist.MaxDistance)
+				{
+					LocalSpacePosition.X = 0;
+					float Distance = LocalSpacePosition.Length();
+					if (Distance < ClosestDistance)
+					{
+						ClosestDistance = Distance;
+						ScreenDistanceInAimAssist = Distance;
+						ActorInAimAssist = TargetActor;
+						OffsetInAimAssist = OffsetTargetType.Offset;
+					}
+				}
+			}
+		}
+		if (ScreenDistanceInAimAssist <= AimAssist.MagneticRadius)
+		{
+			return true;
+		}
+		else return false;
+	}
+	else return false;
 }

@@ -28,6 +28,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "bEnhancedInput == true"))
 	class UInputAction* LookAction;
 
+	/** Aim assist settings. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FAimAssist AimAssist;
+
 	/** Recentering parameters. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FRecenteringParams RecenteringParams;
@@ -89,6 +93,15 @@ protected:
 	/** Already wait time. */
 	float WaitElaspedTime;
 
+	/** If currently is in aim assist. */
+	bool bInAimAssist;
+	/** Screen distance when in aim assist. */
+	float ScreenDistanceInAimAssist;
+	/** The actor that is in aim assist. */
+	AActor* ActorInAimAssist;
+	/** Offset. */
+	FVector OffsetInAimAssist;
+
 	/** Enhanched input subsystem. */
 	UEnhancedInputLocalPlayerSubsystem* Subsystem;
 	
@@ -105,6 +118,12 @@ public:
 	/** Get the multiplication of raw input mouse delta Y and VerticalSpeed. */
 	UFUNCTION(BlueprintPure, Category = "ECamera|ControlAim")
 	float GetMouseDeltaY() { return RawMouseDeltaY * VerticalSpeed; }
+
+	/** Return bInAimAssist for HUD. */
+	bool GetInAimAssist() { return bInAimAssist; }
+
+	/** Return AimAsset for HUD. */
+	const FAimAssist& GetAimAssist() { return AimAssist; }
 
 	/** Get damped mouse delta. */
 	float GetDampedMouseDelta(const float& MouseDelta, bool bIsHorizontal, const float& DeltaTime);
@@ -123,4 +142,7 @@ public:
 
 	/** Constrain pitch. */
 	void ConstrainPitch(float& ResultDeltaY);
+
+	/** Check if there exists an actor will be in aim assist. */
+	bool CheckAimAssist();
 };

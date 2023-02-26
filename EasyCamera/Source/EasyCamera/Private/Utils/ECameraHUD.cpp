@@ -127,7 +127,12 @@ void AECameraHUD::DrawHUD()
 				/** For ControlAim. */
 				else if (AimComponent->IsA<UControlAim>())
 				{
-					// Do nothing for this class.
+					UControlAim* ControlAim = Cast<UControlAim>(AimComponent);
+					DrawRect(RectColor, Canvas->SizeX / 2 - 5.f, Canvas->SizeY / 2 - 5.f, 10.f, 10.f);
+					
+					const FAimAssist& AimAssist = ControlAim->GetAimAssist();
+					DrawRectOnScreenForAimAssist(RectColor, ControlAim, AimAssist);
+					
 				}
 				/** For HardLockAim. */
 				else if (AimComponent->IsA<UHardLockAim>())
@@ -171,12 +176,12 @@ void AECameraHUD::DrawHUD()
 						if (FollowGroupActor)
 						{
 							FollowTargetActorsRef.Append(FollowGroupActor->CameraGroupActorComponent->TargetActors);
-							DrawRectOnScreenForGroupActors(FollowTargetActorsRef, FollowPositionColor);
+							DrawRectOnScreenForGroupActors(FollowPositionColor, FollowTargetActorsRef);
 						}
 						if (AimGroupActor)
 						{
 							AimTargetActorsRef.Append(AimGroupActor->CameraGroupActorComponent->TargetActors);
-							DrawRectOnScreenForGroupActors(AimTargetActorsRef, AimPositionColor);
+							DrawRectOnScreenForGroupActors(AimPositionColor, AimTargetActorsRef);
 						}
 					}
 				}
@@ -206,7 +211,7 @@ void AECameraHUD::DrawRectOnScreenWithPosition(FLinearColor Color, FVector& Posi
 	DrawRect(Color, ScreenPosition.X - Radius, ScreenPosition.Y - Radius, 2 * Radius, 2 * Radius);
 }
 
-void AECameraHUD::DrawRectOnScreenForGroupActors(TArray<FBoundingWrappedActor>& TargetActors, FLinearColor Color)
+void AECameraHUD::DrawRectOnScreenForGroupActors(FLinearColor Color, TArray<FBoundingWrappedActor>& TargetActors)
 {
 	for (FBoundingWrappedActor& BWActor : TargetActors)
 	{
@@ -217,6 +222,30 @@ void AECameraHUD::DrawRectOnScreenForGroupActors(TArray<FBoundingWrappedActor>& 
 			UGameplayStatics::ProjectWorldToScreen(PlayerOwner, BWActor.Target->GetActorLocation(), ScreenPosition);
 			DrawRect(Color, ScreenPosition.X - Radius, ScreenPosition.Y - Radius, 2 * Radius, 2 * Radius);
 			Canvas->K2_DrawBox(ScreenPosition - FVector2D(BWActor.Width, BWActor.Height), FVector2D(2 * BWActor.Width, 2 * BWActor.Height), 1.0f, Color);
+		}
+	}
+}
+
+void AECameraHUD::DrawRectOnScreenForAimAssist(FLinearColor Color, UControlAim* ControlAim, const FAimAssist& AimAssist)
+{
+	if (AimAssist.bEnableAimAssist)
+	{
+		for (const FOffsetActorType& OffsetTargetType : AimAssist.TargetTypes)
+		{
+			TArray<AActor*> OutActors;
+			UGameplayStatics::GetAllActorsOfClass(GetWorld(), OffsetTargetType.ActorType, OutActors);
+			for (AActor* TargetActor : OutActors)
+			{
+				FVector RealPosition = UECameraLibrary::GetPositionWithLocalOffset(TargetActor, OffsetTargetType.Offset);
+				FVector LocalSpacePosition = UECameraLibrary::GetLocalSpacePosition(ControlAim->GetOwningActor(), RealPosition);
+
+				if (LocalSpacePosition.X > 0 && LocalSpacePosition.X <= AimAssist.MaxDistance)
+				{
+					FVector2D ScreenPosition;
+					UGameplayStatics::ProjectWorldToScreen(PlayerOwner, RealPosition, ScreenPosition);
+					DrawRect(Color, ScreenPosition.X - AimAssist.MagneticRadius, ScreenPosition.Y - AimAssist.MagneticRadius, 2 * AimAssist.MagneticRadius, 2 * AimAssist.MagneticRadius);
+				}
+			}
 		}
 	}
 }

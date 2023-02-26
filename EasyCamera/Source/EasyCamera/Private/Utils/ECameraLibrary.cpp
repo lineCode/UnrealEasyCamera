@@ -243,3 +243,17 @@ AEPlayerCameraManager* UECameraLibrary::GetEPlayerCameraManager(const UObject* W
 	APlayerCameraManager* Manager = UGameplayStatics::GetPlayerCameraManager(WorldContextObject, index);
 	return Cast<AEPlayerCameraManager>(Manager);
 }
+
+FVector UECameraLibrary::GetPositionWithLocalOffset(AActor* TargetActor, const FVector& Offset)
+{
+	FVector ActorLocation = TargetActor->GetActorLocation();
+	FRotator ActorRotation = TargetActor->GetActorRotation();
+	FVector LocalOffset = UKismetMathLibrary::GreaterGreater_VectorRotator(Offset, ActorRotation);
+
+	return ActorLocation + LocalOffset;
+}
+
+FVector UECameraLibrary::GetPositionWithLocalRotatedOffset(const FVector& Position, const FRotator& Rotation, const FVector& Offset)
+{
+	return Position + UKismetMathLibrary::GreaterGreater_VectorRotator(Offset, Rotation);
+}

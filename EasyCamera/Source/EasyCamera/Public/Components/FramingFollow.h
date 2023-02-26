@@ -71,9 +71,6 @@ protected:
 public:
 	virtual void UpdateComponent_Implementation(float DeltaTime) override;
 
-	/** Get the *real* follow position, based on actor's local space. */
-	virtual FVector GetRealFollowPosition() override;
-
 	/** Return real follow position. */
 	FVector GetFollowPosition() { return RealFollowPosition; }
 
