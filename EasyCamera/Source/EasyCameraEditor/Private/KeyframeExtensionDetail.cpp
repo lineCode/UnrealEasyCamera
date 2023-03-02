@@ -208,3 +208,5 @@ UKeyframeExtension* FKeyframeExtensionDetail::GetKeyframeExtension(AECameraBase*
     }
     return KeyframeExtension;
 }
+
+#undef LOCTEXT_NAMESPACE
