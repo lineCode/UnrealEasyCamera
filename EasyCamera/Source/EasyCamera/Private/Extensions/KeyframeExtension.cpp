@@ -30,6 +30,8 @@ void UKeyframeExtension::UpdateComponent_Implementation(float DeltaTime)
 
 void UKeyframeExtension::ResetOnBecomeViewTarget(APlayerController* PC, bool bPreserveState)
 {
+	ElapsedTime = 0.0f;
+
 	if (SequencePlayer == nullptr)
 	{
 		Initialize();
@@ -53,8 +55,6 @@ void UKeyframeExtension::Initialize()
 		MovieSequence = ActorSequenceComponent->GetSequence();
 		SequencePlayer = ActorSequenceComponent->GetSequencePlayer();
 	}
-	
-	ElapsedTime = 0.0f;
 }
 
 void UKeyframeExtension::TossSequence()

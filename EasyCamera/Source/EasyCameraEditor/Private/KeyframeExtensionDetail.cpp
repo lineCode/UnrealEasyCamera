@@ -42,6 +42,7 @@ void FKeyframeExtensionDetail::CustomizeDetails(IDetailLayoutBuilder& DetailBuil
             .AutoWidth()
             [
                 SNew(SButton)
+                .ToolTipText(FText::FromString("Procedurally randomize current sequence. Twist the parameters in KeyframExtension to guide generation."))
                 .Content()
                 [
                     SNew(STextBlock)
@@ -88,6 +89,7 @@ void FKeyframeExtensionDetail::CustomizeDetails(IDetailLayoutBuilder& DetailBuil
             .AutoWidth()
             [
                 SNew(SButton)
+                .ToolTipText(FText::FromString("Recover the original sequence."))
                 .Content()
                 [
                     SNew(STextBlock)
@@ -134,6 +136,7 @@ void FKeyframeExtensionDetail::CustomizeDetails(IDetailLayoutBuilder& DetailBuil
             .AutoWidth()
             [
                 SNew(SButton)
+                .ToolTipText(FText::FromString("Save the current sequence."))
                 .Content()
                 [
                     SNew(STextBlock)

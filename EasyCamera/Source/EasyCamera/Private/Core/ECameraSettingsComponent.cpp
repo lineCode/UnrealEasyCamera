@@ -195,7 +195,9 @@ void UECameraSettingsComponent::BecomeViewTarget(APlayerController* PC, bool bPr
 	if (bPreserveState)
 	{
 		GetOwner()->SetActorLocation(GetPlayerController()->PlayerCameraManager->GetCameraLocation());
-		GetOwner()->SetActorRotation(GetPlayerController()->PlayerCameraManager->GetCameraRotation());
+		/** Discard roll. */
+		FRotator Rotation = GetPlayerController()->PlayerCameraManager->GetCameraRotation();
+		GetOwner()->SetActorRotation(FRotator(Rotation.Pitch, Rotation.Yaw, 0));
 	}
 	/** Different components have different OnBecomeViewTarget behaviours. */
 	if (FollowComponent) FollowComponent->ResetOnBecomeViewTarget(PC, bPreserveState);
