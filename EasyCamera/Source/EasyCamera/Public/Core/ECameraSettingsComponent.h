@@ -38,6 +38,7 @@ public:
 	UECameraSettingsComponent();
 	friend class AECameraBase;  // Should I use friend or not?
 	friend class AEAnimatedCamera;
+	friend class AEKeyframeCamera;
 
 public:
 	virtual void OnRegister() override;

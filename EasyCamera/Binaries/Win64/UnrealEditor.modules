@@ -2,6 +2,7 @@
 	"BuildId": "23058290",
 	"Modules": 
 	{
-		"EasyCamera": "UnrealEditor-EasyCamera.dll"
+		"EasyCamera": "UnrealEditor-EasyCamera.dll",
+		"EasyCameraEditor": "UnrealEditor-EasyCameraEditor.dll"
 	}
 }

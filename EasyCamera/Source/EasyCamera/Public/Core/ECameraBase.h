@@ -21,7 +21,8 @@ class EASYCAMERA_API AECameraBase : public ACameraActor
 	GENERATED_BODY()
 
 public:
-	AECameraBase();
+	AECameraBase(const FObjectInitializer& ObjectInitializer);
+	AECameraBase() {}
 
 protected:
 	/** Default camera settings component. */

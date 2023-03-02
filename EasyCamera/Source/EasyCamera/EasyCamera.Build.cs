@@ -41,7 +41,9 @@ public class EasyCamera : ModuleRules
 				"HeadMountedDisplay",
                 "GameplayCameras",
 				"CinematicCamera",
-				"EnhancedInput"
+				"EnhancedInput",
+				"ActorSequence",
+				"MovieScene"
             }
             );
 

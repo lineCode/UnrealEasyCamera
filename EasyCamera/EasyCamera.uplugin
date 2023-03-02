@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "1.0",
+	"VersionName": "0.1",
 	"FriendlyName": "EasyCamera",
 	"Description": "EasyCamera is an add-on for Unreal Engine enabling you to painlessly create a various strand of cameras.",
 	"Category": "Other",
@@ -19,6 +19,11 @@
 			"Name": "EasyCamera",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "EasyCameraEditor",
+			"Type": "Editor",
+			"LoadingPhase": "PostEngineInit"
 		}
 	],
 	"Plugins": [
@@ -28,6 +33,10 @@
 		},
 		{
 			"Name": "EnhancedInput",
+			"Enabled": true
+		},
+		{
+			"Name": "ActorSequence",
 			"Enabled": true
 		}
 	]

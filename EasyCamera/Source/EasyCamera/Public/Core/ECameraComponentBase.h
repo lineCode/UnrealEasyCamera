@@ -80,7 +80,7 @@ public:
 	UFUNCTION()
 	virtual void BindToOnEndViewTarget(APlayerController* PC);
 
-	/** You can override this function to define the behaviour of this extension component. This is executed every tick. */
+	/** You can override this function to define the behaviour of this component. This is executed every tick. */
 	UFUNCTION(BlueprintNativeEvent, meta = (DisplayName = "UpdateComponent"))
 	void UpdateComponent(float DeltaTime);
 	virtual void UpdateComponent_Implementation(float DeltaTime) {}

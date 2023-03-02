@@ -181,6 +181,17 @@ enum class ECameraShakeType : uint8
 	Perlin
 };
 
+/** How do you want to preserve keyframes in the actor sequence component.  */
+UENUM()
+enum class EKeyframePreservationType : uint8
+{
+	None,
+	FirstOnly,
+	LastOnly,
+	FirstAndLast,
+	All
+};
+
 /**************************************************************************************/
 /********************************* Begin structs.**************************************/
 /**************************************************************************************/

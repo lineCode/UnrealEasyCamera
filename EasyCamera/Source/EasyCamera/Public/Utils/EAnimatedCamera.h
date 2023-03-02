@@ -19,7 +19,7 @@ class EASYCAMERA_API AEAnimatedCamera : public AECameraBase
 	GENERATED_BODY()
 
 public:
-	AEAnimatedCamera();
+	AEAnimatedCamera(const FObjectInitializer& ObjectInitializer);
 
 protected:
 	UAnimatedCameraExtension* AnimatedCameraExtension;
