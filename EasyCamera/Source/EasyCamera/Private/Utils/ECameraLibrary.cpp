@@ -144,8 +144,6 @@ AECameraBase* UECameraLibrary::CallCamera(const UObject* WorldContextObject,    
 										  bool bPreserveState						// Whether to preserve camera state.
 										)
 {
-	checkf(CameraClass->IsChildOf<AECameraBase>(), TEXT("The cameraClass class must be derived from AECameraBase"));
-
 	AECameraBase* Camera;
 
 	UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);

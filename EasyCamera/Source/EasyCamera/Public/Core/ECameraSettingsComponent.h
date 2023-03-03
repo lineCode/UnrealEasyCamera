@@ -93,26 +93,30 @@ public:
 	UFUNCTION(BlueprintPure, Category = "ECamera|Settings")
 	AECameraBase* GetOwningCamera() const;
 
+	/** Set follow target. Also sets FollowComponent's follow target. */
+	UFUNCTION(BlueprintCallable, Category = "ECamera|Settings")
+	AActor* SetFollowTarget(AActor* NewFollowTarget);
+
 	/** Get player camera manager. */
 	UFUNCTION(BlueprintPure, Category = "ECamera|Settings")
 	APlayerCameraManager* GetPlayerCameraManager() const;
 
+	/** Set aim target. Also sets AimComponent's aim target. */
+	UFUNCTION(BlueprintCallable, Category = "ECamera|Settings")
+	AActor* SetAimTarget(AActor* NewAimTarget);
+
+	/** Get extension of specified class. */
+	UFUNCTION(BlueprintPure, Category = "ECamera|Settings", meta = (DeterminesOutputType = "ExtensionClass"))
+	UECameraExtensionBase* GetExtensionOfClass(TSubclassOf<UECameraExtensionBase> ExtensionClass);
+
 	/** Get ECamera manager. */
 	AECameraManager* GetECameraManager() const;
-
-	/** Set follow target. Also sets FollowComponent's follow target. */
-	UFUNCTION(BlueprintCallable, Category = "ECamera|Settings")
-	AActor* SetFollowTarget(AActor* NewFollowTarget);
 
 	/** Get FollowComponent. */
 	UECameraComponentFollow* GetFollowComponent() const;
 
 	/** Get follow target. */
 	AActor* GetFollowTarget() const;
-
-	/** Set aim target. Also sets AimComponent's aim target. */
-	UFUNCTION(BlueprintCallable, Category = "ECamera|Settings")
-	AActor* SetAimTarget(AActor* NewAimTarget);
 
 	/** Get aim target. */
 	AActor* GetAimTarget() const;

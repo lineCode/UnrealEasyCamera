@@ -827,6 +827,19 @@ Set the aim target.
 |Output|||
 |  | Return Value | The new aim target. |
 
+### GetExtensionOfClass
+Get extension of specified class.
+
+![](Pics/nodes/settingscomponent/getextensionofclass.png)
+
+|Input / Output| |Description|
+|  :---  | :--- |:--- |
+|Input|||
+|  |Target  | A `ECameraSettingsComponent` target component. |
+|  |ExtensionClass| The extension class you want to extract from all extensions.|
+|Output|||
+|  | Return Value | The owned extension of input class. |
+
 ## EPlayerCameraManager
 ### AddBlendable
 Applies a post process material to the player camera manager.

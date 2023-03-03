@@ -54,12 +54,14 @@ void AECameraBase::Tick(float DeltaTime)
 
 void AECameraBase::BecomeViewTarget(APlayerController* PC)
 {
+	Super::BecomeViewTarget(PC);
 	CameraSettingsComponent->BecomeViewTarget(PC, bPreserveState);
 	GetSettingsComponent()->ECameraManager->AddCamera(this);
 }
 
 void AECameraBase::EndViewTarget(APlayerController* PC)
 {
+	Super::EndViewTarget(PC);
 	CameraSettingsComponent->EndViewTarget(PC);
 	ElaspedTimeOnViewTarget = 0.0f;
 }

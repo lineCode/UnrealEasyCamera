@@ -8,6 +8,7 @@
 #include "Components/ECameraComponentFollow.h"
 #include "Components/HardLockAim.h"
 #include "Extensions/ECameraExtensionBase.h"
+#include "Extensions/KeyframeExtension.h"
 #include "Utils/ECameraTypes.h"
 #include "Kismet/GameplayStatics.h"
 #include "Camera/CameraComponent.h"
@@ -120,6 +121,23 @@ AActor* UECameraSettingsComponent::SetAimTarget(AActor* NewAimTarget)
 	if (AimComponent != nullptr)
 		AimComponent->SetAimTarget(NewAimTarget);
 	return NewAimTarget;
+}
+
+UECameraExtensionBase* UECameraSettingsComponent::GetExtensionOfClass(TSubclassOf<UECameraExtensionBase> ExtensionClass)
+{
+	UECameraExtensionBase* Result = nullptr;
+
+	TArray<UECameraExtensionBase*> OwningExtensions = GetExtensions();
+	for (UECameraExtensionBase* Extension : OwningExtensions)
+	{
+		if (Extension->IsA<UKeyframeExtension>())
+		{
+			Result = Cast<UKeyframeExtension>(Extension);
+			break;
+		}
+	}
+
+	return Result;
 }
 
 AActor* UECameraSettingsComponent::GetAimTarget() const

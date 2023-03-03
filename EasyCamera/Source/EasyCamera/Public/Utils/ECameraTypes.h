@@ -718,3 +718,23 @@ public:
 		, MaxDistance(800)
 	{ }
 }; 
+
+/** A set of parameters controlling the generation of camera motions (Procedural Camera Motion Generation). */
+USTRUCT(BlueprintType)
+struct FPCMGParams
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	/** How do you want to preserve raw keyframes in the actor sequence component. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EKeyframePreservationType KeyframePreservationType;
+
+	/** How instable the generated camera motion would be. A minimum value of 0 indicates constant motion between consecutive keyframes. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.0"))
+	float Instability;
+
+	/** How densely are the generated keyframes distributed. A larger value indicates more keyframes. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.01"))
+	float Granularity;
+};

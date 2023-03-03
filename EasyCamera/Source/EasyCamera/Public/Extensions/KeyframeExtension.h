@@ -29,9 +29,17 @@ public:
 	UKeyframeExtension();
 
 protected:
-	/** How do you want to preserve keyframes in the actor sequence component. */
+	/** A set of parameters controlling the generation of camera motions. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	EKeyframePreservationType KeyframePreservationType;
+	FPCMGParams PCMGParams;
+
+	/** Override camera motion location to make it always track the specified actor in its local space. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<AActor> LocationOverride;
+
+	/** Override camera motion rotation to make it always look at the specified actor. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSoftObjectPtr<AActor> RotationOverride;
 
 private:
 	UActorSequenceComponent* ActorSequenceComponent;
@@ -42,7 +50,8 @@ private:
 	TArray<FFrameNumber> RawTransformTimes[9];
 	TArray<FMovieSceneDoubleValue> RawTransformValues[9];
 
-	float ElapsedTime = 0.0f;
+	FFrameTime ElapsedFrames = 0;
+	float ElapsedTime = 0;
 
 public:
 	virtual void UpdateComponent_Implementation(float DeltaTime) override;

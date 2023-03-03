@@ -12,35 +12,56 @@
 #include "Channels/MovieSceneDoubleChannel.h"
 #include "Channels/MovieSceneChannelData.h"
 #include "Kismet/GameplayStatics.h"
+#include "Utils/ECameraLibrary.h"
 #include "Core/ECameraManager.h"
 
 UKeyframeExtension::UKeyframeExtension()
 {
-	
+	PCMGParams = FPCMGParams();
 }
 
 void UKeyframeExtension::UpdateComponent_Implementation(float DeltaTime)
 {
-	ElapsedTime += DeltaTime;
-	if (SequencePlayer && ElapsedTime >= SequencePlayer->GetDuration().AsSeconds())
+	if (MovieSequence)
 	{
-		OwningSettingComponent->GetECameraManager()->TerminateActiveCamera();
+		TArrayView<FMovieSceneDoubleChannel*> Channels = GetTransformChannels(MovieSequence);
+
+		/** Currently only support the nine transform tracks. Ensure they all exist. */
+		if (Channels.Num() != 9) return;
+
+		/** Use the SetPlaybackPosition function to immediately set play back position.  */
+		SequencePlayer->SetPlaybackPosition(FMovieSceneSequencePlaybackParams(ElapsedFrames, EUpdatePositionMethod::Play));
+
+		/** Apply location override. */
+		if (LocationOverride.Get() != nullptr)
+		{
+			FVector NewLocation = UECameraLibrary::GetPositionWithLocalOffset(LocationOverride.Get(), GetOwningCamera()->GetCameraComponent()->GetRelativeLocation());
+			GetOwningCamera()->GetCameraComponent()->SetWorldLocation(NewLocation);
+		}
+
+		/** Use rotation override. */
+		if (RotationOverride.Get() != nullptr)
+		{
+			FRotator RawRotation = GetOwningCamera()->GetCameraComponent()->GetRelativeRotation();
+			FRotator NewRotation = UKismetMathLibrary::FindLookAtRotation(GetOwningCamera()->GetCameraComponent()->GetComponentLocation(), RotationOverride.Get()->GetActorLocation());
+			GetOwningCamera()->GetCameraComponent()->SetWorldRotation(FRotator(NewRotation.Pitch, NewRotation.Yaw, RawRotation.Roll));
+		}
+
+		ElapsedTime += DeltaTime;
+		ElapsedFrames = FFrameTime::FromDecimal(ElapsedTime * SequencePlayer->GetFrameRate().AsDecimal() * SequencePlayer->GetPlayRate());
+		if (ElapsedFrames.FrameNumber >= SequencePlayer->GetFrameDuration())
+		{
+			OwningSettingComponent->GetECameraManager()->TerminateActiveCamera();
+		}
 	}
 }
 
 void UKeyframeExtension::ResetOnBecomeViewTarget(APlayerController* PC, bool bPreserveState)
 {
-	ElapsedTime = 0.0f;
+	ElapsedFrames.FrameNumber = 0;
+	ElapsedTime = 0.f;
 
-	if (SequencePlayer == nullptr)
-	{
-		Initialize();
-	}
-
-	if (SequencePlayer != nullptr)
-	{
-		SequencePlayer->Play();
-	}
+	Initialize();
 }
 
 void UKeyframeExtension::Initialize()
