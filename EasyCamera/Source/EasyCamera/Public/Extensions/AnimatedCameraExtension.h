@@ -26,7 +26,7 @@ public:
 protected:
 	/** The animation sequence you want to play on camera. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UAnimSequence* AnimToPlay;	
+	UAnimSequence* AnimToPlay;
 
 	/** In which actor's local space you want to play the camera animation. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -50,4 +50,7 @@ public:
 	void SetRefActor(AActor* NewActor) { if (NewActor) RefCoordinateActor = NewActor; }
 	void SetRef(FTransform NewTransform) { RefCoordinate = NewTransform; }
 	void SetOffset(FVector NewOffset) { PositionOffset = NewOffset; }
+
+private:
+	void EvaluateFOV();
 };

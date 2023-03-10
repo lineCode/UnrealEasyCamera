@@ -37,6 +37,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSoftObjectPtr<AActor> LocationOverride;
 
+	/** Location offset applied in target's local space. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector LocationOffset;
+
 	/** Override camera motion rotation to make it always look at the specified actor. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSoftObjectPtr<AActor> RotationOverride;
@@ -45,7 +49,7 @@ private:
 	UActorSequenceComponent* ActorSequenceComponent;
 	TObjectPtr<UActorSequence> MovieSequence;
 	TObjectPtr<UActorSequencePlayer> SequencePlayer;
-	
+
 	bool bModified = false;
 	TArray<FFrameNumber> RawTransformTimes[9];
 	TArray<FMovieSceneDoubleValue> RawTransformValues[9];

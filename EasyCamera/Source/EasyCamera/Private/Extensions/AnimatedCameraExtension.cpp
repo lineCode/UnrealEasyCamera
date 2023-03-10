@@ -9,6 +9,7 @@
 #include "Animation/AnimSequenceBase.h"
 #include "Animation/AnimData/AnimDataModel.h"
 #include "Animation/BuiltInAttributeTypes.h"
+#include "Animation/AttributesContainer.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Core/ECameraManager.h"
@@ -40,6 +41,7 @@ void UAnimatedCameraExtension::UpdateComponent_Implementation(float DeltaTime)
 		GetOwningActor()->SetActorTransform(NewTransform);
 
 		/** Set FOV. */
+#if WITH_EDITOR
 		TArrayView<const FAnimatedBoneAttribute> Attributes = AnimToPlay->GetDataModel()->GetAttributes();
 		if (Attributes.Num() > 0)
 		{
@@ -53,12 +55,54 @@ void UAnimatedCameraExtension::UpdateComponent_Implementation(float DeltaTime)
 				}
 			}
 		}
+#else
+		EvaluateFOV();
+#endif
 
 		ElapsedTime += DeltaTime;
-		if (ElapsedTime >= AnimToPlay->GetDataModel()->GetPlayLength())
+		if (ElapsedTime >= AnimToPlay->GetPlayLength())
 		{
 			/** Terminate this camera. */
 			OwningSettingComponent->GetECameraManager()->TerminateActiveCamera();
+		}
+	}
+}
+
+void UAnimatedCameraExtension::EvaluateFOV()
+{
+	// Prepare the requisite data
+	USkeleton* Skeleton = AnimToPlay->GetSkeleton();
+	const int32 BoneIndex = Skeleton->GetReferenceSkeleton().FindBoneIndex(FName("root"));
+
+	TArray<FBoneIndexType> RequiredBones;
+	RequiredBones.Add(BoneIndex);
+	FBoneContainer BoneContainer(RequiredBones, false, *Skeleton);
+
+	FCompactPose Pose; 
+	Pose.SetBoneContainer(&BoneContainer);
+
+	FBlendedCurve Curve; 
+	Curve.InitFrom(BoneContainer);
+
+	UE::Anim::FStackAttributeContainer InAttributes;
+
+	// Evaluate attribute curves
+	FAnimationPoseData AnimationPoseData(Pose, Curve, InAttributes);
+	FAnimExtractContext Context(ElapsedTime, false);
+	AnimToPlay->EvaluateAttributes(AnimationPoseData, Context, false);
+
+	// Access the FOV attribute
+	UE::Anim::FStackAttributeContainer& OutAttributes = AnimationPoseData.GetAttributes();
+	int TypeIndex = OutAttributes.FindTypeIndex(FFloatAnimationAttribute::StaticStruct());
+	const TArray<UE::Anim::FAttributeId>& AttributeIds = OutAttributes.GetKeys(TypeIndex);
+	for (UE::Anim::FAttributeId AttributeId : AttributeIds)
+	{
+		if (AttributeId.GetName().ToString().Contains("FOV"))
+		{
+			FFloatAnimationAttribute* FOVAttribute = OutAttributes.Find<FFloatAnimationAttribute>(AttributeId);
+			float FOV = FOVAttribute->Value;
+			GetOwningCamera()->GetCameraComponent()->FieldOfView = FOV;
+			break;
 		}
 	}
 }

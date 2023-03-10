@@ -18,24 +18,20 @@
 UKeyframeExtension::UKeyframeExtension()
 {
 	PCMGParams = FPCMGParams();
+	LocationOffset = FVector();
 }
 
 void UKeyframeExtension::UpdateComponent_Implementation(float DeltaTime)
 {
-	if (MovieSequence)
+	if (SequencePlayer)
 	{
-		TArrayView<FMovieSceneDoubleChannel*> Channels = GetTransformChannels(MovieSequence);
-
-		/** Currently only support the nine transform tracks. Ensure they all exist. */
-		if (Channels.Num() != 9) return;
-
-		/** Use the SetPlaybackPosition function to immediately set play back position.  */
+		/** Use the internal SetPlaybackPosition function to immediately set play back position.  */
 		SequencePlayer->SetPlaybackPosition(FMovieSceneSequencePlaybackParams(ElapsedFrames, EUpdatePositionMethod::Play));
 
 		/** Apply location override. */
 		if (LocationOverride.Get() != nullptr)
 		{
-			FVector NewLocation = UECameraLibrary::GetPositionWithLocalOffset(LocationOverride.Get(), GetOwningCamera()->GetCameraComponent()->GetRelativeLocation());
+			FVector NewLocation = UECameraLibrary::GetPositionWithLocalOffset(LocationOverride.Get(), GetOwningCamera()->GetCameraComponent()->GetRelativeLocation() + LocationOffset);
 			GetOwningCamera()->GetCameraComponent()->SetWorldLocation(NewLocation);
 		}
 
@@ -212,10 +208,11 @@ TArrayView<FMovieSceneDoubleChannel*> UKeyframeExtension::GetTransformChannels(U
 		/** Camera component is the first binding. */
 		const FMovieSceneBinding& CameraBinding = Bindings[0];
 		const TArray<UMovieSceneTrack*>& Tracks = CameraBinding.GetTracks();
+
 		for (UMovieSceneTrack* Track : Tracks)
 		{
 			/** We only manipulate the transform track. */
-			if (Track->GetDisplayName().ToString() == "Transform")
+			if (Track->GetName().Contains("Transform"))
 			{
 				const TArray<UMovieSceneSection*>& Sections = Track->GetAllSections();
 				if (Sections.Num() > 0)

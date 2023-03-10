@@ -222,7 +222,7 @@ There are lots of implementable function in `EPlayerCameraManager`. In most case
 ## Animating Camera
 Cameras can be driven by animation sequences. The animation-driven camera is very powerful in expressing fancy skills and scene transitions. Follow the instructions below to create and call an animation-driven camera.
 
-1. Prepare your camera animation. You should craft your animation in DCC softwares, e.g., Maya, 3dsMax, and then import the FBX file into Unreal Engine. The source FBX file should contain, and only contain ***one*** bone track. To this end, you can first import a dummy skeleton (as well as its mesh due to UE's requirement) representating the camera to be animated. Then keyframe the skeleton in DCC softwares and export it as an FBX file, which will be imported into UE.  
+1. Prepare your camera animation. You should craft your animation in DCC softwares, e.g., Maya, 3dsMax, and then import the FBX file into Unreal Engine. The source FBX file should contain, and only contain ***one*** bone track. To this end, you can first import a dummy skeleton (as well as its mesh due to UE's requirement) representating the camera to be animated. **This skeleton must only contain one bone named "root".** Then keyframe the skeleton in DCC softwares and export it as an FBX file, which will be imported into UE.  
     ![Imported skeleton (start with "cam_base2") and an animation (start with "cam_tans")](Pics/AdvancedUses/importfbx.png)
 2. Check the imported animation sequence if it works as expected.  
    ![](Pics/gifs/cameraanimation.gif)
@@ -231,9 +231,9 @@ Cameras can be driven by animation sequences. The animation-driven camera is ver
 4. Now you can enjoy your nice animated camera.  
    ![](Pics/gifs/animatedcamera.gif)
 
-If you want to animate FOV as well, you can create a new attribute curve attacked to the dummy bone in your DCC software. This attribute curve should be of float type and its name contains "FOV". Refer to [Animation Attributes](https://docs.unrealengine.com/5.1/en-US/fbx-attributes-in-unreal-engine/) to learn the way you import animation attributes.
+If you want to animate FOV as well, you can create a new attribute curve attacked to the dummy bone "root" in your DCC software. This attribute curve **MUST** be of float type and its name **contains "FOV"**. Refer to [Animation Attributes](https://docs.unrealengine.com/5.1/en-US/fbx-attributes-in-unreal-engine/) to learn the way you import animation attributes.
 
-After you successfully import the attribute, you will see an additional track is added below the `Attributes` section. Once again, you should make the attribute name contain "FOV", otherwise it will not be detected and becomes unavailing.
+After you successfully import the attribute, you will see an additional track is added below the `Attributes` section. Once again, you should make the attribute name contain "FOV", otherwise it will not be detected and becomes useless.
 
 ![](Pics/AdvancedUses/attribute.png)
 

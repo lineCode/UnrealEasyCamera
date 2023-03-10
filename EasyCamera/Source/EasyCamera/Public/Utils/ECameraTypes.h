@@ -192,6 +192,20 @@ enum class EKeyframePreservationType : uint8
 	All
 };
 
+/** Models for procedural camera motion generation. */
+UENUM()
+enum class EPCMGModel : uint8
+{
+	/** Reinforcement learning - PPO model. Implementation via https://iclr-blog-track.github.io/2022/03/25/ppo-implementation-details/. */
+	PPO_MLP       UMETA(DisplayName = "PPO/MLP"),
+	/** Reinforcement learning - PPO model with LSTM. Implementation via https://iclr-blog-track.github.io/2022/03/25/ppo-implementation-details/. */
+	PPO_LSTM      UMETA(DisplayName = "PPO/LSTM"),
+	/** Evolutionary algorithm. */
+	Evolutionary  UMETA(DisplayName = "Evolutionary"),
+	/** Rule-based randomization. */
+	Rule          UMETA(DisplayName = "Random")
+};
+
 /**************************************************************************************/
 /********************************* Begin structs.**************************************/
 /**************************************************************************************/
@@ -719,22 +733,170 @@ public:
 	{ }
 }; 
 
-/** A set of parameters controlling the generation of camera motions (Procedural Camera Motion Generation). */
+USTRUCT(BlueprintType)
+struct FPCMGRangeParams
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	/** Tangent range for X axis. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-5.0", ClampMax = "5.0"))
+	FVector2f XTangentRange;
+
+	/** Tangent range for Y axis. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-5.0", ClampMax = "5.0"))
+	FVector2f YTangentRange;
+
+	/** Tangent range for Z axis. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-5.0", ClampMax = "5.0"))
+	FVector2f ZTangentRange;
+
+	/** Velocity range for X axis. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-200.0", ClampMax = "200.0"))
+	FVector2f XVelocityRange;
+
+	/** Velocity range for Y axis. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-200.0", ClampMax = "200.0"))
+	FVector2f YVelocityRange;
+
+	/** Velocity range for Z axis. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-200.0", ClampMax = "200.0"))
+	FVector2f ZVelocityRange;
+
+	/** Tangent range for roll. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-5.0", ClampMax = "5.0"))
+	FVector2f RollTangentRange;
+
+	/** Tangent range for pitch. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-5.0", ClampMax = "5.0"))
+	FVector2f PitchTangentRange;
+
+	/** Tangent range for yaw. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-5.0", ClampMax = "5.0"))
+	FVector2f YawTangentRange;
+
+	/** Velocity range for roll. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-90.0", ClampMax = "90.0"))
+	FVector2f RollVelocityRange;
+
+	/** Velocity range for pitch. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-90.0", ClampMax = "90.0"))
+	FVector2f PitchVelocityRange;
+
+	/** Velocity range for yaw. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-90.0", ClampMax = "90.0"))
+	FVector2f YawVelocityRange;
+
+	FPCMGRangeParams()
+		: XTangentRange(FVector2f(-5.0, 5.0))
+		, YTangentRange(FVector2f(-5.0, 5.0))
+		, ZTangentRange(FVector2f(-5.0, 5.0))
+		, XVelocityRange(FVector2f(-200.0, 200.0))
+		, YVelocityRange(FVector2f(-200.0, 200.0))
+		, ZVelocityRange(FVector2f(-200.0, 200.0))
+		, RollTangentRange(FVector2f(-5.0, 5.0))
+		, PitchTangentRange(FVector2f(-5.0, 5.0))
+		, YawTangentRange(FVector2f(-5.0, 5.0))
+		, RollVelocityRange(FVector2f(-90, 90))
+		, PitchVelocityRange(FVector2f(-90, 90))
+		, YawVelocityRange(FVector2f(-90, 90))
+	{ }
+};
+
+/** A set of parameters controlling the generation of camera motions (Procedural Camera Motion Generation). 
+ *  You can use different models to generate camera motions in light of your input constraints.
+ */
 USTRUCT(BlueprintType)
 struct FPCMGParams
 {
 	GENERATED_USTRUCT_BODY()
 
 public:
+	/** Which model do you want to use. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	EPCMGModel Model;
+
 	/** How do you want to preserve raw keyframes in the actor sequence component. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "Model == EPCMGModel::Evolutionary || Model == EPCMGModel::Rule"))
 	EKeyframePreservationType KeyframePreservationType;
 
-	/** How instable the generated camera motion would be. A minimum value of 0 indicates constant motion between consecutive keyframes. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.0"))
-	float Instability;
+	/** How densely are the generated keyframes distributed. Frames per second. Minimum value is 1, maximum value is 10. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "1", ClampMax = "10", EditCondition = "Model == EPCMGModel::Evolutionary || Model == EPCMGModel::Rule"))
+	int Granularity;
 
-	/** How densely are the generated keyframes distributed. A larger value indicates more keyframes. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (ClampMin = "0.01"))
-	float Granularity;
+	/** How would you like the camera to frame the target based on the first frame. A value of 0 indicates no hard-framing, whereas 1 indicates strong framing. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0", ClampMax = "2"))
+	float Framing;
+
+	/** How variant the generated camera motion is allowed to be. A minimum value of 0 indicates constant motion between consecutive keyframes.
+	 *  Respectively for X, Y and Z. 
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0", ClampMax = "500.0"))
+	FVector PosVariance;
+
+	/** How variant the generated camera motion is allowed to be. A minimum value of 0 indicates constant motion between consecutive keyframes.
+	 *  Respectively for roll, pitch and yaw.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0", ClampMax = "500.0"))
+	FVector RotVariance;
+
+	/** How turbulent (i.e., tolerance of outliers) the genetraed camera trajectory would be. A value of 0 indicates a similar normality to normal distribution. 
+	 *  Can be negative. The larger this value is, more outliers there will be in the data set. Used for position.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-20.0", ClampMax = "20.0"))
+	float PosTurbulence;
+
+	/** How turbulent (i.e., tolerance of outliers) the genetraed camera trajectory would be. A value of 0 indicates a similar normality to normal distribution.
+	 *  Can be negative. The larger this value is, more outliers there will be in the data set. Used for rotation.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-20.0", ClampMax = "20.0"))
+	float RotTurbulence;
+
+	/** How symmetric will the generated camera trajectory be. A value of 0 indicates absolutely symmetric. Negative and positive imply asymmetry. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-3.0", ClampMax = "3.0"))
+	float PosSymmetry;
+
+	/** How symmetric will the generated camera rotation be. A value of 0 indicates absolutely symmetric. Negative and positive imply asymmetry.
+	 *  Respectively for roll, pitch and yaw.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-3.0", ClampMax = "3.0"))
+	float RotSymmetry;
+
+	/** How would you like the camera trajectory to be monotonically increasing for position. A maximum value of 1 indicates strictly increase. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0", ClampMax = "1.0"))
+	FVector PosIncreaseMonotonicity;
+
+	/** How would you like the camera trajectory to be monotonically decreasing for position. A maximum value of 1 indicates strictly decrease. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0", ClampMax = "1.0"))
+	FVector PosDecreaseMonotonicity;
+
+	/** How would you like the camera trajectory to be monotonically increasing for rotation. A maximum value of 1 indicates strictly increase. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0", ClampMax = "1.0"))
+	FVector RotIncreaseMonotonicity;
+
+	/** How would you like the camera trajectory to be monotonically decreasing for rotation. A maximum value of 1 indicates strictly decrease. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0", ClampMax = "1.0"))
+	FVector RotDecreaseMonotonicity;
+
+	/** A variaty of ranges to bound the tangent and velocity of position and rotation. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FPCMGRangeParams Ranges;
+
+	FPCMGParams()
+		: Model(EPCMGModel::PPO_MLP)
+		, KeyframePreservationType(EKeyframePreservationType::All)
+		, Granularity(10)
+		, Framing(0.9)
+		, PosVariance(FVector(200, 200, 200))
+		, RotVariance(FVector(200, 200, 200))
+		, PosTurbulence(0)
+		, RotTurbulence(0)
+		, PosSymmetry(1)
+		, RotSymmetry(1)
+		, PosIncreaseMonotonicity(FVector(0.5, 0.5, 0.5))
+		, PosDecreaseMonotonicity(FVector(0.5, 0.5, 0.5))
+		, RotIncreaseMonotonicity(FVector(0.5, 0.5, 0.5))
+		, RotDecreaseMonotonicity(FVector(0.5, 0.5, 0.5))
+		, Ranges(FPCMGRangeParams())
+	{ }
 };
