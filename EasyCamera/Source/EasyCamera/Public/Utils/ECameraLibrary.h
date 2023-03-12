@@ -79,6 +79,34 @@ public:
 	UFUNCTION(BlueprintPure, Category = "ECamera|Utils", meta = (DisplayName = "SpringDampVector"))
 	static void SpringDampVector(const FDampParams& DampParams, const float& DeltaSeconds, const FVector& TemporalInput, const FVector& SpatialInput, FVector& Output);
 
+	/** An exact spring damper used to damp an input vector. Credit to: https://theorangeduck.com/page/spring-roll-call#dampingratio. 
+	 * @param CurrentVector - Input vector representing current property, e.g., position.
+	 * @param CurrentVelocity - Input vector representing current velocity.
+	 * @param TargetVector - Input vector representing target property, e.g., position.
+	 * @param TargetVelocity - Input vector representing target velocity.
+	 * @param DampRatio - Damp ratio used for the input vector. A value of 1 means a critically damped spring, a value <1 means an under-damped spring, and a value of >1 means a over-damped spring.
+	 * @param HalfLife - Duration of time used to damp the input vector. Cannot be negative.
+	 * @param DeltaSeconds - The elapsed time since last frame.
+	 */
+	UFUNCTION(BlueprintPure, Category = "ECamera|Utils", meta = (DisplayName = "ExactSpringDampVector"))
+	static void ExactSpringDamperVector(FVector& CurrentVector, FVector& CurrentVelocity, const FVector& TargetVector, const FVector& TargetVelocity, FVector DampRatio, FVector HalfLife, const float& DeltaSeconds);
+
+	/** An exact spring damper used to damp an input vector. Credit to: https://theorangeduck.com/page/spring-roll-call#dampingratio.
+	 * @param CurrentValue - Input value representing current property, e.g., position.
+	 * @param CurrentVelocity - Input value representing current velocity.
+	 * @param TargetValue - Input value representing target property, e.g., position.
+	 * @param TargetVelocity - Input value representing target velocity.
+	 * @param DampRatio - Damp ratio used for the input vector. A value of 1 means a critically damped spring, a value <1 means an under-damped spring, and a value of >1 means a over-damped spring. Cannot be negative.
+	 * @param HalfLife - Duration of time used to damp the input value. Cannot be negative.
+	 * @param DeltaSeconds - The elapsed time since last frame.
+	 */
+	UFUNCTION(BlueprintPure, Category = "ECamera|Utils", meta = (DisplayName = "ExactSpringDampValue"))
+	static void ExactSpringDamperValue(double& CurrentValue, double& CurrentVelocity, const float& TargetValue, const float& TargetVelocity, float DampRatio, float HalfLife, const float& DeltaSeconds);
+
+	/** A fast version to compute atan. Credit to: https://theorangeduck.com/page/spring-roll-call#dampingratio. */
+	UFUNCTION(BlueprintPure, Category = "ECamera|Utils", meta = (DisplayName = "FastAtan"))
+	static float FastAtan(float x);
+
 	/** Interpolate two quaternions according to damp time.
 	 * @param Quat1 - Starting quaternion.
 	 * @param Quat2 - Destination quaternion.

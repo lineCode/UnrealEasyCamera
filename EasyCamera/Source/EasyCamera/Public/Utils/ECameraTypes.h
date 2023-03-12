@@ -93,7 +93,9 @@ enum class EDampMethod : uint8
 	/** Splits the given deltaTime into several parts and simulates naive damping in order. */
 	Simulate,
 	/** Uses spring to damp. */
-	Spring
+	Spring,
+	/** Uses exact spring damper. */
+	ExactSpring
 };
 
 /**
@@ -347,7 +349,7 @@ public:
 	EDampMethod DampMethod;
 
 	/** Used for Naive and Simulate. Damp residual after damp time (in percent). */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (EditCondition = "DampMethod != EDampMethod::Spring"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (EditCondition = "DampMethod == EDampMethod::Naive || DampMethod == EDampMethod::Simulate"))
 	float Residual;
 
 	/** Used for Spring. The spring coefficient controlling how responsive the actor gets back to its rest place.In the order of X, Y and Z axis. */
@@ -358,6 +360,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (EditCondition = "DampMethod == EDampMethod::Spring", ClampMin = "0.0", ClampMax = "1.0"))
 	float SpringResidual;
 
+	/** Used for Exact Spring. A value of 1 means a critically damped spring, a value <1 means an under-damped spring, and a value of >1 means a over-damped spring. Cannot be negative. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (EditCondition = "DampMethod == EDampMethod::ExactSpring", ClampMin = "0.001", ClampMax = "5.0"))
+	FVector DampRatio;
+		
+	/** Duration of time used to damp the input value. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Meta = (EditCondition = "DampMethod == EDampMethod::ExactSpring", ClampMin = "0.0"))
+	FVector HalfLife;
+
 	float MaxDeltaSeconds;
 
 	FDampParams()
@@ -365,6 +375,8 @@ public:
 		, Residual(0.01f)
 		, SpringCoefficient(FVector(300.0f, 250.0f, 250.0f))
 		, SpringResidual(0.5f)
+		, DampRatio(1.0f)
+		, HalfLife(0.5f)
 		, MaxDeltaSeconds(1 / 60.0f)
 	{ }
 
@@ -373,6 +385,8 @@ public:
 		, Residual(Residual)
 		, SpringCoefficient(FVector(300.0f, 250.0f, 250.0f))
 		, SpringResidual(0.5f)
+		, DampRatio(1.0f)
+		, HalfLife(0.5f)
 		, MaxDeltaSeconds(1 / 60.0f)
 	{ }
 };

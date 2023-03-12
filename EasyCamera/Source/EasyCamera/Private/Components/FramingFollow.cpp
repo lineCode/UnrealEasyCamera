@@ -27,6 +27,7 @@ UFramingFollow::UFramingFollow()
 	ScreenOffsetWidth = FVector2f(-0.1f, 0.1f);
 	ScreenOffsetHeight = FVector2f(-0.1f, 0.1f);
 	PreviousLocation = FVector(0.0f, 0.0f, 0.0f);
+	ExactSpringVel = FVector(0.0f, 0.0f, 0.0f);
 }
 
 void UFramingFollow::UpdateComponent_Implementation(float DeltaTime)
@@ -115,10 +116,23 @@ void UFramingFollow::SetForwardDelta(const FVector& LocalSpaceFollowPosition, FV
 
 void UFramingFollow::ApplyForwardDelta(FVector& TempDeltaPosition, float DeltaTime)
 {
-	double DampedDeltaX;
-	UECameraLibrary::DamperValue(DampParams, DeltaTime, TempDeltaPosition.X, FollowDamping.X, DampedDeltaX);
-	/** Immediately apply it. */
-	GetOwningActor()->AddActorLocalOffset(FVector(DampedDeltaX, 0, 0));
+	if (DampParams.DampMethod == EDampMethod::Naive || DampParams.DampMethod == EDampMethod::Simulate)
+	{
+		double DampedDeltaX;
+		UECameraLibrary::DamperValue(DampParams, DeltaTime, TempDeltaPosition.X, FollowDamping.X, DampedDeltaX);
+		GetOwningActor()->AddActorLocalOffset(FVector(DampedDeltaX, 0, 0));
+	}
+	else if (DampParams.DampMethod == EDampMethod::ExactSpring)
+	{
+		double CurrentPos = 0.0;
+		double& CurrentVel = ExactSpringVel[0];
+		double TargetPos = TempDeltaPosition.X;
+		double TargetVel = FollowTarget->GetVelocity()[0];
+
+		UECameraLibrary::ExactSpringDamperValue(CurrentPos, CurrentVel, TargetPos, TargetVel, DampParams.DampRatio[0], DampParams.HalfLife[0], DeltaTime);
+		GetOwningActor()->AddActorLocalOffset(FVector(CurrentPos, 0, 0));
+	}
+	
 	/** Reset delta x to avoid duplicate calculation. */
 	TempDeltaPosition.X = 0;
 }
@@ -136,8 +150,24 @@ void UFramingFollow::SetYZPlaneDelta(const FVector& LocalSpaceFollowPosition, FV
 FVector UFramingFollow::DampDeltaPosition(const FVector& LocalSpaceFollowPosition, const FVector& TempDeltaPosition, float DeltaTime, const FVector2f& RealScreenOffset)
 {
 	FVector DampedDeltaPosition = FVector(0, 0, 0);
-	if (DampParams.DampMethod != EDampMethod::Spring) UECameraLibrary::DamperVectorWithDifferentDampTime(DampParams, DeltaTime, TempDeltaPosition, FollowDamping, DampedDeltaPosition);
-	else UECameraLibrary::SpringDampVector(DampParams, DeltaTime, GetOwningActor()->GetActorLocation() - PreviousLocation, TempDeltaPosition, DampedDeltaPosition);
+	if (DampParams.DampMethod == EDampMethod::Naive || DampParams.DampMethod == EDampMethod::Simulate) 
+		UECameraLibrary::DamperVectorWithDifferentDampTime(DampParams, DeltaTime, TempDeltaPosition, FollowDamping, DampedDeltaPosition);
+	else if (DampParams.DampMethod == EDampMethod::Spring)
+		UECameraLibrary::SpringDampVector(DampParams, DeltaTime, GetOwningActor()->GetActorLocation() - PreviousLocation, TempDeltaPosition, DampedDeltaPosition);
+	else if (DampParams.DampMethod == EDampMethod::ExactSpring)
+	{
+		double CachedVelX = ExactSpringVel[0];
+
+		FVector CurrentPos = FVector(0, 0, 0);
+		FVector& CurrentVel = ExactSpringVel;
+		FVector TargetPos = TempDeltaPosition;
+		const FVector TargetVel = FollowTarget->GetVelocity();
+		UECameraLibrary::ExactSpringDamperVector(CurrentPos, CurrentVel, TargetPos, TargetVel, DampParams.DampRatio, DampParams.HalfLife, DeltaTime);
+
+		ExactSpringVel[0] = CachedVelX;
+		DampedDeltaPosition[1] = CurrentPos[1];
+		DampedDeltaPosition[2] = CurrentPos[2];
+	}
 	EnsureWithinBounds(LocalSpaceFollowPosition, DampedDeltaPosition, RealScreenOffset);
 
 	return DampedDeltaPosition;

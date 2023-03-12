@@ -94,6 +94,76 @@ void UECameraLibrary::SpringDampVector(const FDampParams& DampParams, const floa
 	}
 }
 
+void UECameraLibrary::ExactSpringDamperVector(FVector& CurrentVector, FVector& CurrentVelocity, const FVector& TargetVector, const FVector& TargetVelocity, FVector DampRatio, FVector HalfLife, const float& DeltaSeconds)
+{
+	ExactSpringDamperValue(CurrentVector[0], CurrentVelocity[0], TargetVector[0], TargetVelocity[0], DampRatio[0], HalfLife[0], DeltaSeconds);
+	ExactSpringDamperValue(CurrentVector[1], CurrentVelocity[1], TargetVector[1], TargetVelocity[1], DampRatio[1], HalfLife[1], DeltaSeconds);
+	ExactSpringDamperValue(CurrentVector[2], CurrentVelocity[2], TargetVector[2], TargetVelocity[2], DampRatio[2], HalfLife[2], DeltaSeconds);
+}
+
+void UECameraLibrary::ExactSpringDamperValue(double& CurrentValue, double& CurrentVelocity, const float& TargetValue, const float& TargetVelocity, float DampRatio, float HalfLife, const float& DeltaSeconds)
+{
+	float G = TargetValue;
+	float Q = TargetVelocity;
+	float D = (4.0f * 0.69314718056f) / (HalfLife + 1e-8f);
+	float S = FMath::Square<float>(D / (DampRatio * 2.0f));
+	float C = G + (D * Q) / (S + 1e-8f);
+	float Y = D / 2.0f;
+
+	// Critically damped
+	if (DampRatio == 1.0f)
+	{
+		float J0 = CurrentValue - C;
+		float J1 = CurrentVelocity + J0 * Y;
+
+		float YDt = Y * DeltaSeconds;
+		float E = 1.0f / (1.0f + YDt + 0.48f * YDt * YDt + 0.235f * YDt * YDt * YDt);
+
+		CurrentValue = J0 * E + DeltaSeconds * J1 * E + C;
+		CurrentVelocity = -Y * J0 * E - Y * DeltaSeconds * J1 * E + J1 * E;
+	}
+	// Under damped
+	else if (DampRatio > 1.0f)
+	{
+		float W = FMath::Sqrt(S - D * D / 4.0f);
+		float J = FMath::Sqrt(FMath::Square<float>(CurrentVelocity + Y * (CurrentValue - C)) / (W * W + 1e-8f) + FMath::Square<float>(CurrentValue - C));
+		float P = FastAtan((CurrentVelocity + (CurrentValue - C) * Y) / (-(CurrentValue - C) * W + 1e-8f));
+
+		J = (CurrentValue - C) > 0.0f ? J : -J;
+
+		float YDt = Y * DeltaSeconds;
+		float E = 1.0f / (1.0f + YDt + 0.48f * YDt * YDt + 0.235f * YDt * YDt * YDt);
+
+		CurrentValue = J * E * FMath::Cos(W * DeltaSeconds + P) + C;
+		CurrentVelocity = -Y * J * E * FMath::Cos(W * DeltaSeconds + P) - W * J * E * FMath::Sin(W * DeltaSeconds + P);
+	}
+	// Over damped
+	else if (DampRatio < 1.0f)
+	{
+		float Y0 = (D + FMath::Sqrt(D * D - 4.0f * S)) / 2.0f;
+		float Y1 = (D - FMath::Sqrt(D * D - 4.0f * S)) / 2.0f;
+		float J1 = (C * Y0 - CurrentValue * Y0 - CurrentVelocity) / (Y1 - Y0);
+		float J0 = CurrentValue - J1 - C;
+
+		float Y0Dt = Y0 * DeltaSeconds;
+		float Y1Dt = Y1 * DeltaSeconds;
+		float E0 = 1.0f / (1.0f + Y0Dt + 0.48f * Y0Dt * Y0Dt + 0.235f * Y0Dt * Y0Dt * Y0Dt);
+		float E1 = 1.0f / (1.0f + Y1Dt + 0.48f * Y1Dt * Y1Dt + 0.235f * Y1Dt * Y1Dt * Y1Dt);
+
+		CurrentValue = J0 * E0 + J1 * E1 + C;
+		CurrentVelocity = -Y0 * J0 * E0 - Y1 * J1 * E1;
+	}
+}
+
+float UECameraLibrary::FastAtan(float x)
+{
+	float Z = FMath::Abs(x);
+	float W = Z > 1.0f ? 1.0f / Z : Z;
+	float Pi = 3.14159265359;
+	float Y = (Pi / 4.0f) * W - W * (W - 1) * (0.2447f + 0.0663f * W);
+	return Z > 1.0 ? Pi / 2.0 - Y : Y;
+}
+
 void UECameraLibrary::DamperQuaternion(const FQuat& Quat1, const FQuat& Quat2, const float& DeltaSeconds, float DampTime, FQuat& Output)
 {
 	double T;

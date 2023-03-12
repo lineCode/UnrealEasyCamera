@@ -68,6 +68,8 @@ protected:
 	/** Location at previous frame. Used for Spring damp. */
 	FVector PreviousLocation;
 
+	FVector ExactSpringVel;
+
 public:
 	virtual void UpdateComponent_Implementation(float DeltaTime) override;
 
