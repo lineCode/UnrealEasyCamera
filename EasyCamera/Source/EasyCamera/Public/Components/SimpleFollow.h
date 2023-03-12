@@ -52,6 +52,7 @@ protected:
 	FVector FollowDamping;
 
 	FVector PreviousLocation;
+	FVector ExactSpringVel;
 
 public:
 	virtual void UpdateComponent_Implementation(float DeltaTime) override;

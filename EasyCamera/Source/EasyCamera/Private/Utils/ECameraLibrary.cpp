@@ -101,6 +101,8 @@ void UECameraLibrary::ExactSpringDamperVector(FVector& CurrentVector, FVector& C
 	ExactSpringDamperValue(CurrentVector[2], CurrentVelocity[2], TargetVector[2], TargetVelocity[2], DampRatio[2], HalfLife[2], DeltaSeconds);
 }
 
+
+/** @TODO: Needs to be improved. */
 void UECameraLibrary::ExactSpringDamperValue(double& CurrentValue, double& CurrentVelocity, const float& TargetValue, const float& TargetVelocity, float DampRatio, float HalfLife, const float& DeltaSeconds)
 {
 	float G = TargetValue;
@@ -111,7 +113,7 @@ void UECameraLibrary::ExactSpringDamperValue(double& CurrentValue, double& Curre
 	float Y = D / 2.0f;
 
 	// Critically damped
-	if (DampRatio == 1.0f)
+	if (FMath::Abs(S - D * D / 4.0f) < 1e-5f)
 	{
 		float J0 = CurrentValue - C;
 		float J1 = CurrentVelocity + J0 * Y;
@@ -123,7 +125,7 @@ void UECameraLibrary::ExactSpringDamperValue(double& CurrentValue, double& Curre
 		CurrentVelocity = -Y * J0 * E - Y * DeltaSeconds * J1 * E + J1 * E;
 	}
 	// Under damped
-	else if (DampRatio > 1.0f)
+	else if (S - D * D / 4.0f > 0.0f)
 	{
 		float W = FMath::Sqrt(S - D * D / 4.0f);
 		float J = FMath::Sqrt(FMath::Square<float>(CurrentVelocity + Y * (CurrentValue - C)) / (W * W + 1e-8f) + FMath::Square<float>(CurrentValue - C));
@@ -138,7 +140,7 @@ void UECameraLibrary::ExactSpringDamperValue(double& CurrentValue, double& Curre
 		CurrentVelocity = -Y * J * E * FMath::Cos(W * DeltaSeconds + P) - W * J * E * FMath::Sin(W * DeltaSeconds + P);
 	}
 	// Over damped
-	else if (DampRatio < 1.0f)
+	else if (S - D * D / 4.0f < 0.0f)
 	{
 		float Y0 = (D + FMath::Sqrt(D * D - 4.0f * S)) / 2.0f;
 		float Y1 = (D - FMath::Sqrt(D * D - 4.0f * S)) / 2.0f;

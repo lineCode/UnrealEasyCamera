@@ -127,7 +127,7 @@ void UFramingFollow::ApplyForwardDelta(FVector& TempDeltaPosition, float DeltaTi
 		double CurrentPos = 0.0;
 		double& CurrentVel = ExactSpringVel[0];
 		double TargetPos = TempDeltaPosition.X;
-		double TargetVel = FollowTarget->GetVelocity()[0];
+		double TargetVel = FollowTarget->GetVelocity()[0] / 1.1f;
 
 		UECameraLibrary::ExactSpringDamperValue(CurrentPos, CurrentVel, TargetPos, TargetVel, DampParams.DampRatio[0], DampParams.HalfLife[0], DeltaTime);
 		GetOwningActor()->AddActorLocalOffset(FVector(CurrentPos, 0, 0));
@@ -161,7 +161,7 @@ FVector UFramingFollow::DampDeltaPosition(const FVector& LocalSpaceFollowPositio
 		FVector CurrentPos = FVector(0, 0, 0);
 		FVector& CurrentVel = ExactSpringVel;
 		FVector TargetPos = TempDeltaPosition;
-		const FVector TargetVel = FollowTarget->GetVelocity();
+		const FVector TargetVel = FollowTarget->GetVelocity() / 1.1f;
 		UECameraLibrary::ExactSpringDamperVector(CurrentPos, CurrentVel, TargetPos, TargetVel, DampParams.DampRatio, DampParams.HalfLife, DeltaTime);
 
 		ExactSpringVel[0] = CachedVelX;
