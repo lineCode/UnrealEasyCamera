@@ -1,0 +1,28 @@
+// Copyright 2023 by Sulley. All Rights Reserved.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "NeuralNetwork.h"
+#include "Utils/ECameraTypes.h"
+#include "PCMGNeuralNetwork.generated.h"
+
+/**
+ * A helper class used to instantiate a neural network and integrate into UE.
+ */
+UCLASS(classGroup = "ECamera")
+class EASYCAMERA_API UPCMGNeuralNetwork : public UNeuralNetwork
+{
+	GENERATED_BODY()
+	
+public:
+	UPCMGNeuralNetwork();
+
+protected:
+	UPROPERTY(Transient)
+	UNeuralNetwork* Network = nullptr;
+
+public:
+	void Run(EPCMGModel ModelType, TArray<float>& Input, TArray<float>& Output);
+
+};

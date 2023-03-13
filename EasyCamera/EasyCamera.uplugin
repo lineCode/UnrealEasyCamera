@@ -38,6 +38,10 @@
 		{
 			"Name": "ActorSequence",
 			"Enabled": true
+		},
+		{
+			"Name": "NeuralNetworkInference",
+			"Enabled": true
 		}
 	]
 }

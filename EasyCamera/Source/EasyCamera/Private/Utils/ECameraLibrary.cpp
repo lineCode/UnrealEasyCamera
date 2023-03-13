@@ -21,22 +21,22 @@ void UECameraLibrary::DamperValue(const FDampParams& DampParams, const float& De
 
 	switch (DampParams.DampMethod)
 	{
-	case EDampMethod::Naive:
-	{
-		float lnResidual = FMath::Loge(DampParams.Residual);
-		Output = Input * (1.0f - FMath::Exp(lnResidual * DeltaSeconds / DampTime));
-	}
-	break;
-	case EDampMethod::Simulate:
-	{
-		const int n = 10; // Split DeltaSeconds into *n* equally distributed segments
-		float lnResidual = FMath::Loge(DampParams.Residual);
-		float ratio = FMath::Exp(lnResidual * DeltaSeconds / n / DampTime);
-		Output = Input - Input / n * ratio * (1.0f - FMath::Exp(lnResidual * DeltaSeconds / DampTime)) / (1.0f - ratio);
-	}
-	break;
-	default:
-		Output = Input;
+		case EDampMethod::Naive:
+		{
+			float lnResidual = FMath::Loge(DampParams.Residual);
+			Output = Input * (1.0f - FMath::Exp(lnResidual * DeltaSeconds / DampTime));
+		}
+		break;
+		case EDampMethod::Simulate:
+		{
+			const int n = 10; // Split DeltaSeconds into *n* equally distributed segments
+			float lnResidual = FMath::Loge(DampParams.Residual);
+			float ratio = FMath::Exp(lnResidual * DeltaSeconds / n / DampTime);
+			Output = Input - Input / n * ratio * (1.0f - FMath::Exp(lnResidual * DeltaSeconds / DampTime)) / (1.0f - ratio);
+		}
+		break;
+		default:
+			Output = Input;
 		return;
 	}
 }

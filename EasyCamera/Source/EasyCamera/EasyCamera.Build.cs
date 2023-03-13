@@ -43,7 +43,11 @@ public class EasyCamera : ModuleRules
 				"CinematicCamera",
 				"EnhancedInput",
 				"ActorSequence",
-				"MovieScene"
+				"MovieScene",
+				"NeuralNetworkInference",
+				"RHI",
+				"RHICore",
+				"D3D12RHI"
             }
             );
 

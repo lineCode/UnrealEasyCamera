@@ -12,6 +12,7 @@ class UActorSequenceComponent;
 class UMovieSceneSequence;
 class UActorSequencePlayer;
 class UActorSequence;
+class UPCMGNeuralNetwork;
 
 /**
  * This extension enables users to keyframe camera motion in editor and 
@@ -53,6 +54,7 @@ private:
 	bool bModified = false;
 	TArray<FFrameNumber> RawTransformTimes[9];
 	TArray<FMovieSceneDoubleValue> RawTransformValues[9];
+	UPCMGNeuralNetwork* Network;
 
 	FFrameTime ElapsedFrames = 0;
 	float ElapsedTime = 0;

@@ -13,12 +13,14 @@
 #include "Channels/MovieSceneChannelData.h"
 #include "Kismet/GameplayStatics.h"
 #include "Utils/ECameraLibrary.h"
+#include "Utils/PCMGNeuralNetwork.h"
 #include "Core/ECameraManager.h"
 
 UKeyframeExtension::UKeyframeExtension()
 {
 	PCMGParams = FPCMGParams();
 	LocationOffset = FVector();
+	Network = NewObject<UPCMGNeuralNetwork>();
 }
 
 void UKeyframeExtension::UpdateComponent_Implementation(float DeltaTime)
@@ -103,6 +105,7 @@ void UKeyframeExtension::TossSequence()
 
 void UKeyframeExtension::TossSequence(UActorSequenceComponent* InActorSequenceComponent)
 {
+	/*
 	if (InActorSequenceComponent)
 	{
 		UActorSequence* InMovieSequence = InActorSequenceComponent->GetSequence();
@@ -124,7 +127,25 @@ void UKeyframeExtension::TossSequence(UActorSequenceComponent* InActorSequenceCo
 				}
 			}
 		}
+	}*/
+	if (InActorSequenceComponent)
+	{
+		TArray<float> Input;
+		TArray<float> Output;
+
+		UActorSequence* InMovieSequence = InActorSequenceComponent->GetSequence();
+		if (InMovieSequence)
+		{
+			TArrayView<FMovieSceneDoubleChannel*> Channels = GetTransformChannels(InMovieSequence);
+		}
+
+		if (Network)
+		{
+			Network->Run(PCMGParams.Model, Input, Output);
+		}
 	}
+
+	
 }
 
 void UKeyframeExtension::TossChannel(FMovieSceneDoubleChannel* Channel)
