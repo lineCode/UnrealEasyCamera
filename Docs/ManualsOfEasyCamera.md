@@ -1111,6 +1111,44 @@ Interpolate two quaternions according to damp time.
 |Output |||
 |  |Output | Damped output quaternion.|
 
+### ExactSpringDamperVector
+An exact spring damper used to damp an input vector. Credit to: https://theorangeduck.com/page/spring-roll-call#dampingratio. 
+
+![](Pics/nodes/library/exactspringdampvector.png)
+
+|Input / Output| |Description|
+|  :---  | :--- |:--- |
+|Input|||
+|  | CurrentVector | Input value representing current property, e.g., position.|
+|  |CurrentVelocity |Input vector representing current velocity. |
+|  |TargetVector | Input vector representing target property, e.g., position.|
+|  |TargetVelocity | Input vector representing target velocity.|
+|  | DampRatio|Damp ratio used for the input vector. A value of 1 means a critically damped spring, a value <1 means an under-damped spring, and a value of >1 means a over-damped spring. |
+|  | HalfLife| Duration of time used to damp the input vector. Cannot be negative.|
+|  | DeltaSeconds|The elapsed time since last frame.|
+|Output |||
+|  |OutVector | Output vector representing current property, e.g., position.|
+|  |OutVelocity | Ouput velocity.|
+
+### ExactSpringDamperValue
+An exact spring damper used to damp an input value. Credit to: https://theorangeduck.com/page/spring-roll-call#dampingratio.
+
+![](Pics/nodes/library/exactspringdampvalue.png)
+
+|Input / Output| |Description|
+|  :---  | :--- |:--- |
+|Input|||
+|  | CurrentValue | Input value representing current property, e.g., position. |
+|  |CurrentValue |Input value representing current velocity.|
+|  |TargetValue | Input value representing target property, e.g., position.|
+|  |TargetValue | Input value representing target velocity.|
+|  | DampRatio|Damp ratio used for the input vector. A value of 1 means a critically damped spring, a value <1 means an under-damped spring, and a value of >1 means a over-damped spring. |
+|  | HalfLife| Duration of time used to damp the input vector. Cannot be negative.|
+|  | DeltaSeconds|The elapsed time since last frame.|
+|Output |||
+|  |OutValue |Output value representing current property, e.g., position.|
+|  |OutVelocity | Ouput velocity.|
+
 ### GetCameraLocalSpaceCoordinateWithActor
 Return the camera local space coordinate of an input world space position.
 

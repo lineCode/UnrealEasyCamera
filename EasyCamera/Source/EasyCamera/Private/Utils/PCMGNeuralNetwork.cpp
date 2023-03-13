@@ -15,22 +15,26 @@ void UPCMGNeuralNetwork::Run(EPCMGModel ModelType, TArray<float>& Input, TArray<
 		Network = NewObject<UNeuralNetwork>((UObject*)GetTransientPackage(), UNeuralNetwork::StaticClass());
 	}
 
+	FString ModelPathProject;
+	FString ModelPathEngine;
 	FString ModelPath;
 	switch (ModelType)
 	{
 		case EPCMGModel::PPO_MLP:
 		{
-			//ModelPath = FPaths::ProjectPluginsDir() + "/UnrealEasyCamera/EasyCamera/Resources/Models/PPO_MLP.onnx";
-			ModelPath = FPaths::ProjectPluginsDir() + "UnrealEasyCamera/EasyCamera/Resources/Models/PPO_MLP.onnx";
+			ModelPathProject = FPaths::ProjectPluginsDir() + "UnrealEasyCamera/EasyCamera/Resources/Models/PPO_MLP.onnx";
+			ModelPathEngine = FPaths::EnginePluginsDir() + "UnrealEasyCamera/EasyCamera/Resources/Models/PPO_MLP.onnx";
 		}
 		break;
 		case EPCMGModel::PPO_LSTM:
 		{
-			ModelPath = FPaths::ProjectPluginsDir() + "UnrealEasyCamera/EasyCamera/Resources/Models/PPO_LSTM.onnx";
+			ModelPathProject = FPaths::ProjectPluginsDir() + "UnrealEasyCamera/EasyCamera/Resources/Models/PPO_LSTM.onnx";
+			ModelPathEngine = FPaths::EnginePluginsDir() + "UnrealEasyCamera/EasyCamera/Resources/Models/PPO_LSTM.onnx";
 		}
 		break;
 		default: { }
 	}
+
 	/*
 	if (FPaths::FileExists(ModelPath))
 	{
@@ -42,6 +46,15 @@ void UPCMGNeuralNetwork::Run(EPCMGModel ModelType, TArray<float>& Input, TArray<
 		UE_LOG(LogTemp, Warning, TEXT("File does not exist.")); 
 		UE_LOG(LogTemp, Warning, TEXT("Plugin path is %s."), *FPaths::ProjectPluginsDir());
 	}*/
+
+	if (FPaths::FileExists(ModelPathProject))
+	{
+		ModelPath = ModelPathProject;
+	}
+	else
+	{
+		ModelPath = ModelPathEngine;
+	}
 	
 	if (Network->Load(ModelPath))
 	{

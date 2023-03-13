@@ -87,13 +87,16 @@ FVector USimpleFollow::DampDeltaPosition(const FVector& TempDeltaPosition, float
 	else if (DampParams.DampMethod == EDampMethod::ExactSpring)
 	{
 		FVector CurrentPos = FVector(0, 0, 0);
-		FVector& CurrentVel = ExactSpringVel;
+		FVector CurrentVel = ExactSpringVel;
 		FVector TargetPos = TempDeltaPosition;
 		const FVector TargetVel = FollowTarget->GetVelocity() / 1.1f;
-		UECameraLibrary::ExactSpringDamperVector(CurrentPos, CurrentVel, TargetPos, TargetVel, DampParams.DampRatio, DampParams.HalfLife, DeltaTime);
+		FVector OutPos = FVector(0, 0, 0);
+		FVector& OutVel = ExactSpringVel;
+
+		UECameraLibrary::ExactSpringDamperVector(CurrentPos, CurrentVel, TargetPos, TargetVel, DampParams.DampRatio, DampParams.HalfLife, DeltaTime, OutPos, OutVel);
 
 		FVector BinaryAxisMasks = FVector(AxisMasks[0] != 0.0f, AxisMasks[1] != 0.0f, AxisMasks[2] != 0.0f);
-		DampedDeltaPosition = BinaryAxisMasks * CurrentPos;
+		DampedDeltaPosition = BinaryAxisMasks * OutPos;
 	}
 
 	return DampedDeltaPosition;
