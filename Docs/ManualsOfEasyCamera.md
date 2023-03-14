@@ -237,6 +237,8 @@ After you successfully import the attribute, you will see an additional track is
 
 ![](Pics/AdvancedUses/attribute.png)
 
+## Keyframing Camera Motion and Procedural Generation
+
 ## Integrating with Montage
 If you are using a Montage and want to add a camera accompanying this Montage animation clip, the best practice is to create a new `AnimNotifyState` and expose several variables that can be called for each instance.
 
@@ -672,6 +674,8 @@ You must ensure the input animation is valid in this regard. See [Animating Came
 | PositionOffset || Position offset, in reference space. |
 |Stage||Stage at which this component is executed. You can only change this property at the "Class Defaults" window. |
 
+### KeyframeExtension
+
 ## Miscellaneous
 ### Group Actor Component
 This component is attached to an actor (called a group actor) enabling you to add multiple sub-actors which will together determine the group actor's location and rotation. You can add a group actor by selecting "Add"->"All Classes" and adding a `ECamera Group Actor` into the level.
@@ -711,6 +715,12 @@ The full name of this is `UECameraModifier_CameraShake`. The purpose of this cla
 If you create a new class inherited from `EPlayerCameraManager`, you can find that the default camera modifier has been replaced by this class (with prefix character `E`).
 
 ![](/Docs/Pics/BasicUses/cameramodifier.png)
+
+### PCMGNeuralNetwork
+
+The `UPCGMNeuralNetwork` is used to incorporate neural networks into Unreal Engine. It is inherited from the `UNeuralNetwork` class and runs a given neural network with the format of [onnx](https://onnx.ai/).
+
+In this plugin, this class is used internally to drive the procedurally generated camera motion encapsulated in the [KeyframeExtension](#keyframeextension) component. Thus, you cannot instantiate this class, nor can you inherit from this class.
 
 # Blueprint Nodes List
 Reminder: you can do most of you blueprint work by directly accessing class variables through the *Get* and *Set* nodes.
