@@ -54,6 +54,7 @@ private:
 	bool bModified = false;
 	TArray<FFrameNumber> RawTransformTimes[9];
 	TArray<FMovieSceneDoubleValue> RawTransformValues[9];
+	UPROPERTY(Transient)
 	UPCMGNeuralNetwork* Network;
 
 	FFrameTime ElapsedFrames = 0;
@@ -81,4 +82,6 @@ private:
 	void TossChannel(FMovieSceneDoubleChannel* Channel);
 	void DuplicateRawData(TArrayView<FMovieSceneDoubleChannel*> Channels);
 	TArrayView<FMovieSceneDoubleChannel*> GetTransformChannels(UActorSequence* InMovieSceneSequence);
+	void ConstructInput(TArray<float>& Input, const TArrayView<FMovieSceneDoubleChannel*>& Channels);
+	void ApplyOutput(TArray<float>& Output, TArrayView<FMovieSceneDoubleChannel*>& Channels, UActorSequence* InMovieSequence);
 };

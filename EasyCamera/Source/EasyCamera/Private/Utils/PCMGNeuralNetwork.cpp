@@ -6,15 +6,11 @@
 
 UPCMGNeuralNetwork::UPCMGNeuralNetwork()
 {
-	Network = NewObject<UNeuralNetwork>((UObject*)GetTransientPackage(), UNeuralNetwork::StaticClass());
+	
 }
-void UPCMGNeuralNetwork::Run(EPCMGModel ModelType, TArray<float>& Input, TArray<float>& Output)
-{
-	if (Network == nullptr)
-	{
-		Network = NewObject<UNeuralNetwork>((UObject*)GetTransientPackage(), UNeuralNetwork::StaticClass());
-	}
 
+void UPCMGNeuralNetwork::RunModel(EPCMGModel ModelType, TArray<float>& Input, TArray<float>& Output)
+{
 	FString ModelPathProject;
 	FString ModelPathEngine;
 	FString ModelPath;
@@ -35,18 +31,6 @@ void UPCMGNeuralNetwork::Run(EPCMGModel ModelType, TArray<float>& Input, TArray<
 		default: { }
 	}
 
-	/*
-	if (FPaths::FileExists(ModelPath))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("File exists."));
-
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("File does not exist.")); 
-		UE_LOG(LogTemp, Warning, TEXT("Plugin path is %s."), *FPaths::ProjectPluginsDir());
-	}*/
-
 	if (FPaths::FileExists(ModelPathProject))
 	{
 		ModelPath = ModelPathProject;
@@ -55,31 +39,31 @@ void UPCMGNeuralNetwork::Run(EPCMGModel ModelType, TArray<float>& Input, TArray<
 	{
 		ModelPath = ModelPathEngine;
 	}
-	
-	if (Network->Load(ModelPath))
+
+	if (this->Load(ModelPath))
 	{
-		if (Network->IsGPUSupported())
-			Network->SetDeviceType(ENeuralDeviceType::GPU);
+		if (this->IsGPUSupported())
+			this->SetDeviceType(ENeuralDeviceType::GPU);
 		else
-			Network->SetDeviceType(ENeuralDeviceType::CPU);
+			this->SetDeviceType(ENeuralDeviceType::CPU);
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("NeuralNetwork could not be loaded from %s."), *ModelPath);
 	}
 
-	if (Network == nullptr || !Network->IsLoaded())
+	if (!this->IsLoaded())
 	{
 		return;
 	}
 
-	Network->SetInputFromArrayCopy(Input);
-	UE_LOG(LogTemp, Log, TEXT("Input tensor: %s."), *Network->GetInputTensor().ToString());
+	this->SetInputFromArrayCopy(Input);
+	UE_LOG(LogTemp, Log, TEXT("Input tensor: %s."), *this->GetInputTensor().ToString());
 
-	Network->Run();
+	this->Run();
 	UE_LOG(LogTemp, Log, TEXT("Neural Network inference complete."));
 
-	const FNeuralTensor& OutputTensor = Network->GetOutputTensor();
+	const FNeuralTensor& OutputTensor = this->GetOutputTensor();
 	Output = OutputTensor.GetArrayCopy<float>();
 	UE_LOG(LogTemp, Log, TEXT("Output tensor: %s."), *OutputTensor.ToString());
 }

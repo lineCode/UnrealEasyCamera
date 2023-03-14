@@ -18,11 +18,7 @@ class EASYCAMERA_API UPCMGNeuralNetwork : public UNeuralNetwork
 public:
 	UPCMGNeuralNetwork();
 
-protected:
-	UPROPERTY(Transient)
-	UNeuralNetwork* Network = nullptr;
-
 public:
-	void Run(EPCMGModel ModelType, TArray<float>& Input, TArray<float>& Output);
+	void RunModel(EPCMGModel ModelType, TArray<float>& Input, TArray<float>& Output);
 
 };
