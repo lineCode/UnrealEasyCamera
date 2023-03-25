@@ -6,7 +6,7 @@
 
 UPCMGNeuralNetwork::UPCMGNeuralNetwork()
 {
-	
+
 }
 
 void UPCMGNeuralNetwork::RunModel(EPCMGModel ModelType, TArray<float>& Input, TArray<float>& Output)
@@ -26,6 +26,12 @@ void UPCMGNeuralNetwork::RunModel(EPCMGModel ModelType, TArray<float>& Input, TA
 		{
 			ModelPathProject = FPaths::ProjectPluginsDir() + "UnrealEasyCamera/EasyCamera/Resources/Models/PPO_LSTM.onnx";
 			ModelPathEngine = FPaths::EnginePluginsDir() + "UnrealEasyCamera/EasyCamera/Resources/Models/PPO_LSTM.onnx";
+		}
+		break;
+		case EPCMGModel::SAC:
+		{
+			ModelPathProject = FPaths::ProjectPluginsDir() + "UnrealEasyCamera/EasyCamera/Resources/Models/SAC.onnx";
+			ModelPathEngine = FPaths::EnginePluginsDir() + "UnrealEasyCamera/EasyCamera/Resources/Models/SAC.onnx";
 		}
 		break;
 		default: { }
@@ -62,7 +68,7 @@ void UPCMGNeuralNetwork::RunModel(EPCMGModel ModelType, TArray<float>& Input, TA
 
 	this->Run();
 	UE_LOG(LogTemp, Log, TEXT("Neural Network inference complete."));
-
+	
 	const FNeuralTensor& OutputTensor = this->GetOutputTensor();
 	Output = OutputTensor.GetArrayCopy<float>();
 	UE_LOG(LogTemp, Log, TEXT("Output tensor: %s."), *OutputTensor.ToString());

@@ -198,14 +198,16 @@ enum class EKeyframePreservationType : uint8
 UENUM()
 enum class EPCMGModel : uint8
 {
-	/** Reinforcement learning - PPO model. Implementation via https://iclr-blog-track.github.io/2022/03/25/ppo-implementation-details/. */
+	/** Reinforcement learning - PPO model. Implementation based on https://iclr-blog-track.github.io/2022/03/25/ppo-implementation-details/. */
 	PPO_MLP       UMETA(DisplayName = "PPO/MLP"),
-	/** Reinforcement learning - PPO model with LSTM. Implementation via https://iclr-blog-track.github.io/2022/03/25/ppo-implementation-details/. */
+	/** Reinforcement learning - PPO model with LSTM. Implementation based on https://iclr-blog-track.github.io/2022/03/25/ppo-implementation-details/. */
 	PPO_LSTM      UMETA(DisplayName = "PPO/LSTM"),
-	/** Evolutionary algorithm. */
-	Evolutionary  UMETA(DisplayName = "Evolutionary"),
-	/** Rule-based randomization. */
-	Rule          UMETA(DisplayName = "Random")
+	/** Reinforcement learning - SAC model. Implementation based on https://github.com/XinJingHao/SAC-Continuous-Pytorch/blob/main/SAC.py. */
+	SAC           UMETA(DisplayName = "SAC"),
+	/** A randomized magnetic field algorithm. */
+	Magnetic      UMETA(DisplayName = "MagneticField"),
+	/** Function composition, including trigonometric functions, exponential functions, polynomial functions, etc. */
+	Function      UMETA(DisplayName = "FunctionComposition")
 };
 
 /**************************************************************************************/
@@ -753,18 +755,6 @@ struct FPCMGRangeParams
 	GENERATED_USTRUCT_BODY()
 
 public:
-	/** Tangent range for X axis. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-5.0", ClampMax = "5.0"))
-	FVector2f XTangentRange;
-
-	/** Tangent range for Y axis. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-5.0", ClampMax = "5.0"))
-	FVector2f YTangentRange;
-
-	/** Tangent range for Z axis. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-5.0", ClampMax = "5.0"))
-	FVector2f ZTangentRange;
-
 	/** Velocity range for X axis. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-200.0", ClampMax = "200.0"))
 	FVector2f XVelocityRange;
@@ -777,43 +767,55 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-200.0", ClampMax = "200.0"))
 	FVector2f ZVelocityRange;
 
-	/** Tangent range for roll. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-5.0", ClampMax = "5.0"))
-	FVector2f RollTangentRange;
-
-	/** Tangent range for pitch. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-5.0", ClampMax = "5.0"))
-	FVector2f PitchTangentRange;
-
-	/** Tangent range for yaw. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-5.0", ClampMax = "5.0"))
-	FVector2f YawTangentRange;
-
 	/** Velocity range for roll. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-90.0", ClampMax = "90.0"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-45.0", ClampMax = "45.0"))
 	FVector2f RollVelocityRange;
 
 	/** Velocity range for pitch. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-90.0", ClampMax = "90.0"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-45.0", ClampMax = "45.0"))
 	FVector2f PitchVelocityRange;
 
 	/** Velocity range for yaw. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-90.0", ClampMax = "90.0"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-45.0", ClampMax = "45.0"))
 	FVector2f YawVelocityRange;
 
+	/** Acceleration range for X axis. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-1000.0", ClampMax = "1000.0"))
+	FVector2f XAccelerationRange;
+
+	/** Acceleration range for Y axis. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-1000.0", ClampMax = "1000.0"))
+	FVector2f YAccelerationRange;
+
+	/** Acceleration range for Z axis. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-1000.0", ClampMax = "1000.0"))
+	FVector2f ZAccelerationRange;
+
+	/** Acceleration range for roll. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-225.0", ClampMax = "225.0"))
+	FVector2f RollAccelerationRange;
+
+	/** Acceleration range for pitch. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-225.0", ClampMax = "225.0"))
+	FVector2f PitchAccelerationRange;
+
+	/** Acceleration range for yaw. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-225.0", ClampMax = "225.0"))
+	FVector2f YawAccelerationRange;
+
 	FPCMGRangeParams()
-		: XTangentRange(FVector2f(-5.0, 5.0))
-		, YTangentRange(FVector2f(-5.0, 5.0))
-		, ZTangentRange(FVector2f(-5.0, 5.0))
-		, XVelocityRange(FVector2f(-200.0, 200.0))
+		: XVelocityRange(FVector2f(-200.0, 200.0))
 		, YVelocityRange(FVector2f(-200.0, 200.0))
 		, ZVelocityRange(FVector2f(-200.0, 200.0))
-		, RollTangentRange(FVector2f(-5.0, 5.0))
-		, PitchTangentRange(FVector2f(-5.0, 5.0))
-		, YawTangentRange(FVector2f(-5.0, 5.0))
 		, RollVelocityRange(FVector2f(-90, 90))
 		, PitchVelocityRange(FVector2f(-90, 90))
 		, YawVelocityRange(FVector2f(-90, 90))
+		, XAccelerationRange(FVector2f(-1000.0, 1000.0))
+		, YAccelerationRange(FVector2f(-1000.0, 1000.0))
+		, ZAccelerationRange(FVector2f(-1000.0, 1000.0))
+		, RollAccelerationRange(FVector2f(-225.0, 225.0))
+		, PitchAccelerationRange(FVector2f(-225.0, 225.0))
+		, YawAccelerationRange(FVector2f(-225.0, 225.0))
 	{ }
 };
 
@@ -830,29 +832,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	EPCMGModel Model;
 
-	/** How do you want to preserve raw keyframes in the actor sequence component. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (EditCondition = "Model == EPCMGModel::Evolutionary || Model == EPCMGModel::Rule"))
-	EKeyframePreservationType KeyframePreservationType;
-
-	/** How densely are the generated keyframes distributed. Frames per second. Minimum value is 1, maximum value is 10. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "1", ClampMax = "10", EditCondition = "Model == EPCMGModel::Evolutionary || Model == EPCMGModel::Rule"))
-	int Granularity;
-
 	/** How would you like the camera to frame the target based on the first frame. A value of 0 indicates no hard-framing, whereas 1 indicates strong framing. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0", ClampMax = "2"))
 	float Framing;
-
-	/** How variant the generated camera motion is allowed to be. A minimum value of 0 indicates constant motion between consecutive keyframes.
-	 *  Respectively for X, Y and Z. 
-	 */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0", ClampMax = "500.0"))
-	FVector PosVariance;
-
-	/** How variant the generated camera motion is allowed to be. A minimum value of 0 indicates constant motion between consecutive keyframes.
-	 *  Respectively for roll, pitch and yaw.
-	 */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0", ClampMax = "500.0"))
-	FVector RotVariance;
 
 	/** How turbulent (i.e., tolerance of outliers) the genetraed camera trajectory would be. A value of 0 indicates a similar normality to normal distribution. 
 	 *  Can be negative. The larger this value is, more outliers there will be in the data set. Used for position.
@@ -892,17 +874,21 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "0.0", ClampMax = "1.0"))
 	FVector RotDecreaseMonotonicity;
 
+	/** Spearman coefficient for position. +1 means monotonically increasing, and -1 means monotonically decreasing. Respectively for X, Y and Z axis. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-1.0", ClampMax = "1.0"))
+	FVector PosSpearman;
+
+	/** Spearman coefficient for rotation. +1 means monotonically increasing, and -1 means monotonically decreasing. Respectively for roll, pitch and yaw. */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ClampMin = "-1.0", ClampMax = "1.0"))
+	FVector RotSpearman;
+
 	/** A variaty of ranges to bound the tangent and velocity of position and rotation. */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FPCMGRangeParams Ranges;
 
 	FPCMGParams()
 		: Model(EPCMGModel::PPO_MLP)
-		, KeyframePreservationType(EKeyframePreservationType::All)
-		, Granularity(10)
 		, Framing(0.9)
-		, PosVariance(FVector(200, 200, 200))
-		, RotVariance(FVector(200, 200, 200))
 		, PosTurbulence(0)
 		, RotTurbulence(0)
 		, PosSymmetry(1)

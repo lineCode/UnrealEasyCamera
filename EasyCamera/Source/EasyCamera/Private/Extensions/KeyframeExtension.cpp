@@ -20,7 +20,6 @@ UKeyframeExtension::UKeyframeExtension()
 {
 	PCMGParams = FPCMGParams();
 	LocationOffset = FVector();
-	Network = NewObject<UPCMGNeuralNetwork>((UObject*)GetTransientPackage(), UPCMGNeuralNetwork::StaticClass());
 }
 
 void UKeyframeExtension::UpdateComponent_Implementation(float DeltaTime)
@@ -105,33 +104,11 @@ void UKeyframeExtension::TossSequence()
 
 void UKeyframeExtension::TossSequence(UActorSequenceComponent* InActorSequenceComponent)
 {
-	/*
-	if (InActorSequenceComponent)
-	{
-		UActorSequence* InMovieSequence = InActorSequenceComponent->GetSequence();
-		if (InMovieSequence)
-		{
-			TArrayView<FMovieSceneDoubleChannel*> Channels = GetTransformChannels(InMovieSequence);
-
-			if (Channels.Num() != 0)
-			{
-				if (!bModified)
-				{
-					DuplicateRawData(Channels);
-					bModified = true;
-				}
-
-				for (FMovieSceneDoubleChannel* Channel : Channels)
-				{
-					TossChannel(Channel);
-				}
-			}
-		}
-	}*/
 	if (InActorSequenceComponent)
 	{
 		TArray<float> Input;
 		TArray<float> Output;
+		UPCMGNeuralNetwork* Network = nullptr;
 
 		UActorSequence* InMovieSequence = InActorSequenceComponent->GetSequence();
 
@@ -144,10 +121,7 @@ void UKeyframeExtension::TossSequence(UActorSequenceComponent* InActorSequenceCo
 				return;
 			}
 
-			if (Network == nullptr)
-			{
-				Network = NewObject<UPCMGNeuralNetwork>((UObject*)GetTransientPackage(), UPCMGNeuralNetwork::StaticClass());
-			}
+			Network = NewObject<UPCMGNeuralNetwork>((UObject*)GetTransientPackage(), UPCMGNeuralNetwork::StaticClass());
 
 			if (Network != nullptr)
 			{
@@ -167,38 +141,24 @@ void UKeyframeExtension::TossSequence(UActorSequenceComponent* InActorSequenceCo
 
 void UKeyframeExtension::ConstructInput(TArray<float>& Input, const TArrayView<FMovieSceneDoubleChannel*>& Channels)
 {
-	Input.Add(PCMGParams.PosVariance[0]);
-	Input.Add(PCMGParams.PosVariance[1]);
-	Input.Add(PCMGParams.PosVariance[2]);
-	Input.Add(PCMGParams.RotVariance[0]);
-	Input.Add(PCMGParams.RotVariance[1]);
-	Input.Add(PCMGParams.RotVariance[2]);
+	//Input.Add(PCMGParams.PosTurbulence);
+	//Input.Add(PCMGParams.RotTurbulence);
 
-	Input.Add(PCMGParams.PosTurbulence);
-	Input.Add(PCMGParams.RotTurbulence);
+	//Input.Add(PCMGParams.PosSymmetry);
+	//Input.Add(PCMGParams.RotSymmetry);
 
-	Input.Add(PCMGParams.PosSymmetry);
-	Input.Add(PCMGParams.RotSymmetry);
-
-	Input.Add(PCMGParams.PosIncreaseMonotonicity[0]);
-	Input.Add(PCMGParams.PosIncreaseMonotonicity[1]);
-	Input.Add(PCMGParams.PosIncreaseMonotonicity[2]);
-	Input.Add(PCMGParams.PosDecreaseMonotonicity[0]);
-	Input.Add(PCMGParams.PosDecreaseMonotonicity[1]);
-	Input.Add(PCMGParams.PosDecreaseMonotonicity[2]);
-	Input.Add(PCMGParams.RotIncreaseMonotonicity[0]);
-	Input.Add(PCMGParams.RotIncreaseMonotonicity[1]);
-	Input.Add(PCMGParams.RotIncreaseMonotonicity[2]);
-	Input.Add(PCMGParams.RotDecreaseMonotonicity[0]);
-	Input.Add(PCMGParams.RotDecreaseMonotonicity[1]);
-	Input.Add(PCMGParams.RotDecreaseMonotonicity[2]);
-
-	Input.Add(PCMGParams.Ranges.XTangentRange[0]);
-	Input.Add(PCMGParams.Ranges.XTangentRange[1]);
-	Input.Add(PCMGParams.Ranges.YTangentRange[0]);
-	Input.Add(PCMGParams.Ranges.YTangentRange[1]);
-	Input.Add(PCMGParams.Ranges.ZTangentRange[0]);
-	Input.Add(PCMGParams.Ranges.ZTangentRange[1]);
+	//Input.Add(PCMGParams.PosIncreaseMonotonicity[0]);
+	//Input.Add(PCMGParams.PosIncreaseMonotonicity[1]);
+	//Input.Add(PCMGParams.PosIncreaseMonotonicity[2]);
+	//Input.Add(PCMGParams.PosDecreaseMonotonicity[0]);
+	//Input.Add(PCMGParams.PosDecreaseMonotonicity[1]);
+	//Input.Add(PCMGParams.PosDecreaseMonotonicity[2]);
+	//Input.Add(PCMGParams.RotIncreaseMonotonicity[0]);
+	//Input.Add(PCMGParams.RotIncreaseMonotonicity[1]);
+	//Input.Add(PCMGParams.RotIncreaseMonotonicity[2]);
+	//Input.Add(PCMGParams.RotDecreaseMonotonicity[0]);
+	//Input.Add(PCMGParams.RotDecreaseMonotonicity[1]);
+	//Input.Add(PCMGParams.RotDecreaseMonotonicity[2]);
 
 	Input.Add(PCMGParams.Ranges.XVelocityRange[0]);
 	Input.Add(PCMGParams.Ranges.XVelocityRange[1]);
@@ -207,13 +167,6 @@ void UKeyframeExtension::ConstructInput(TArray<float>& Input, const TArrayView<F
 	Input.Add(PCMGParams.Ranges.ZVelocityRange[0]);
 	Input.Add(PCMGParams.Ranges.ZVelocityRange[1]);
 
-	Input.Add(PCMGParams.Ranges.RollTangentRange[0]);
-	Input.Add(PCMGParams.Ranges.RollTangentRange[1]);
-	Input.Add(PCMGParams.Ranges.PitchTangentRange[0]);
-	Input.Add(PCMGParams.Ranges.PitchTangentRange[1]);
-	Input.Add(PCMGParams.Ranges.YawTangentRange[0]);
-	Input.Add(PCMGParams.Ranges.YawTangentRange[1]);
-
 	Input.Add(PCMGParams.Ranges.RollVelocityRange[0]);
 	Input.Add(PCMGParams.Ranges.RollVelocityRange[1]);
 	Input.Add(PCMGParams.Ranges.PitchVelocityRange[0]);
@@ -221,7 +174,33 @@ void UKeyframeExtension::ConstructInput(TArray<float>& Input, const TArrayView<F
 	Input.Add(PCMGParams.Ranges.YawVelocityRange[0]);
 	Input.Add(PCMGParams.Ranges.YawVelocityRange[1]);
 
-	for (int i = 0; i < 108; ++i)
+	float XAccelerationMinimum     = FMath::Max<float>(PCMGParams.Ranges.XAccelerationRange[0],     2.5 * (PCMGParams.Ranges.XVelocityRange[0] - PCMGParams.Ranges.XVelocityRange[1]));
+	float XAccelerationMaximum     = FMath::Min<float>(PCMGParams.Ranges.XAccelerationRange[1],		2.5 * (PCMGParams.Ranges.XVelocityRange[1] - PCMGParams.Ranges.XVelocityRange[0]));
+	float YAccelerationMinimum     = FMath::Max<float>(PCMGParams.Ranges.YAccelerationRange[0],		2.5 * (PCMGParams.Ranges.YVelocityRange[0] - PCMGParams.Ranges.YVelocityRange[1]));
+	float YAccelerationMaximum     = FMath::Min<float>(PCMGParams.Ranges.YAccelerationRange[1],		2.5 * (PCMGParams.Ranges.YVelocityRange[1] - PCMGParams.Ranges.YVelocityRange[0]));
+	float ZAccelerationMinimum     = FMath::Max<float>(PCMGParams.Ranges.ZAccelerationRange[0],		2.5 * (PCMGParams.Ranges.ZVelocityRange[0] - PCMGParams.Ranges.ZVelocityRange[1]));
+	float ZAccelerationMaximum     = FMath::Min<float>(PCMGParams.Ranges.ZAccelerationRange[1],		2.5 * (PCMGParams.Ranges.ZVelocityRange[1] - PCMGParams.Ranges.ZVelocityRange[0]));
+	float RollAccelerationMinimum  = FMath::Max<float>(PCMGParams.Ranges.RollAccelerationRange[0],  2.5 * (PCMGParams.Ranges.RollVelocityRange[0] - PCMGParams.Ranges.RollVelocityRange[1]));
+	float RollAccelerationMaximum  = FMath::Min<float>(PCMGParams.Ranges.RollAccelerationRange[1],  2.5 * (PCMGParams.Ranges.RollVelocityRange[1] - PCMGParams.Ranges.RollVelocityRange[0]));
+	float PitchAccelerationMinimum = FMath::Max<float>(PCMGParams.Ranges.PitchAccelerationRange[0], 2.5 * (PCMGParams.Ranges.PitchVelocityRange[0] - PCMGParams.Ranges.PitchVelocityRange[1]));
+	float PitchAccelerationMaximum = FMath::Min<float>(PCMGParams.Ranges.PitchAccelerationRange[1], 2.5 * (PCMGParams.Ranges.PitchVelocityRange[1] - PCMGParams.Ranges.PitchVelocityRange[0]));
+	float YawAccelerationMinimum   = FMath::Max<float>(PCMGParams.Ranges.YawAccelerationRange[0],   2.5 * (PCMGParams.Ranges.YawVelocityRange[0] - PCMGParams.Ranges.YawVelocityRange[1]));
+	float YawAccelerationMaximum   = FMath::Min<float>(PCMGParams.Ranges.YawAccelerationRange[1],   2.5 * (PCMGParams.Ranges.YawVelocityRange[1] - PCMGParams.Ranges.YawVelocityRange[0]));
+
+	Input.Add(XAccelerationMinimum);
+	Input.Add(XAccelerationMaximum);
+	Input.Add(YAccelerationMinimum);
+	Input.Add(YAccelerationMaximum);
+	Input.Add(ZAccelerationMinimum);
+	Input.Add(ZAccelerationMaximum);
+	Input.Add(RollAccelerationMinimum);
+	Input.Add(RollAccelerationMaximum);
+	Input.Add(PitchAccelerationMinimum);
+	Input.Add(PitchAccelerationMaximum);
+	Input.Add(YawAccelerationMinimum);
+	Input.Add(YawAccelerationMaximum);
+
+	for (int i = 0; i < 54; ++i)
 		Input.Add(0);
 
 	for (int i = 0; i < 6; ++i)
@@ -238,15 +217,12 @@ void UKeyframeExtension::ConstructInput(TArray<float>& Input, const TArrayView<F
 		}
 	}
 
-	for (int i = 0; i < 6; ++i)
-		Input.Add(0);
-
-	check(Input.Num() == 166);
+	check(Input.Num() == 84);
 }
 
 void UKeyframeExtension::ApplyOutput(TArray<float>& Output, TArrayView<FMovieSceneDoubleChannel*>& Channels, UActorSequence* InMovieSequence)
 {
-	check(Output.Num() == 612);
+	check(Output.Num() == 156);
 	
 	UMovieScene* MovieScene = InMovieSequence->GetMovieScene();
 
@@ -258,25 +234,22 @@ void UKeyframeExtension::ApplyOutput(TArray<float>& Output, TArrayView<FMovieSce
 	TArray<FFrameNumber> NewTransformTimes[6];
 	TArray<FMovieSceneDoubleValue> NewTransformValues[6];
 
-	for (int Second = 0; Second <= 5; ++Second)
-		for (int Frame = 0; Frame < 10; ++Frame)
+	const int NumberOfSeconds = 5;
+	const int FramesPerSecond = 5;
+
+	for (int Second = 0; Second <= NumberOfSeconds; ++Second)
+		for (int Frame = 0; Frame < FramesPerSecond; ++Frame)
 		{
-			if (Second == 5 && Frame != 0)
+			if (Second == NumberOfSeconds && Frame != 0)
 				break;
 
-			int Index = (10 * Second + Frame) * 12;
+			int Index = (FramesPerSecond * Second + Frame) * 6;
 			float X            = Output[Index];
 			float Y            = Output[Index + 1];
 			float Z            = Output[Index + 2];
 			float Roll	       = Output[Index + 3];
 			float Pitch        = Output[Index + 4];
 			float Yaw          = Output[Index + 5];
-			float XTangent     = Output[Index + 6];
-			float YTangent     = Output[Index + 7];
-			float ZTangent     = Output[Index + 8];
-			float RollTangent  = Output[Index + 9];
-			float PitchTangent = Output[Index + 10];
-			float YawTangent   = Output[Index + 11];
 
 			FMovieSceneDoubleValue XValue(X);
 			FMovieSceneDoubleValue YValue(Y);
@@ -285,19 +258,19 @@ void UKeyframeExtension::ApplyOutput(TArray<float>& Output, TArrayView<FMovieSce
 			FMovieSceneDoubleValue PitchValue(Pitch);
 			FMovieSceneDoubleValue YawValue  (Yaw);
 
+			XValue.InterpMode     = RCIM_Cubic;
+			YValue.InterpMode	  = RCIM_Cubic;
+			ZValue.InterpMode	  = RCIM_Cubic;
+			RollValue.InterpMode  = RCIM_Cubic;
+			PitchValue.InterpMode = RCIM_Cubic;
+			YawValue.InterpMode   = RCIM_Cubic;
+
 			XValue.TangentMode    = RCTM_Auto;
 			YValue.TangentMode    = RCTM_Auto;
 			ZValue.TangentMode    = RCTM_Auto;
 			RollValue.TangentMode = RCTM_Auto;
 			XValue.TangentMode    = RCTM_Auto;
 			YawValue.TangentMode  = RCTM_Auto;
-
-			//XValue.Tangent.ArriveTangent     = XValue.Tangent.LeaveTangent     = XTangent / 1000;
-			//YValue.Tangent.ArriveTangent     = YValue.Tangent.LeaveTangent     = YTangent / 1000;
-			//ZValue.Tangent.ArriveTangent     = ZValue.Tangent.LeaveTangent     = ZTangent / 1000;
-			//RollValue.Tangent.ArriveTangent  = RollValue.Tangent.LeaveTangent  = RollTangent / 1000;
-			//PitchValue.Tangent.ArriveTangent = PitchValue.Tangent.LeaveTangent = PitchTangent / 1000;
-			//YawValue.Tangent.ArriveTangent   = YawValue.Tangent.LeaveTangent   = YawTangent / 1000;
 
 			NewTransformValues[0].Add(XValue);
 			NewTransformValues[1].Add(YValue);
@@ -306,7 +279,7 @@ void UKeyframeExtension::ApplyOutput(TArray<float>& Output, TArrayView<FMovieSce
 			NewTransformValues[4].Add(PitchValue);
 			NewTransformValues[5].Add(YawValue);
 
-			int32 CurrentFrame = Ratio * (30 * Second + 3 * Frame);
+			int32 CurrentFrame = Ratio * (30 * Second + 30 / FramesPerSecond * Frame);
 
 			NewTransformTimes[0].Add(FFrameNumber(CurrentFrame));
 			NewTransformTimes[1].Add(FFrameNumber(CurrentFrame));
@@ -319,6 +292,7 @@ void UKeyframeExtension::ApplyOutput(TArray<float>& Output, TArrayView<FMovieSce
 	for (int i = 0; i < 6; ++i)
 	{
 		Channels[i]->Set(NewTransformTimes[i], NewTransformValues[i]);
+		Channels[i]->AutoSetTangents();
 	}
 }
 
