@@ -82,4 +82,5 @@ private:
 	TArrayView<FMovieSceneDoubleChannel*> GetTransformChannels(UActorSequence* InMovieSceneSequence);
 	void ConstructInput(TArray<float>& Input, const TArrayView<FMovieSceneDoubleChannel*>& Channels);
 	void ApplyOutput(TArray<float>& Output, TArrayView<FMovieSceneDoubleChannel*>& Channels, UActorSequence* InMovieSequence);
+	void GetFunctionOutput(FFunctionParamsCollection FcuntionParams, TArray<float>& Output);
 };

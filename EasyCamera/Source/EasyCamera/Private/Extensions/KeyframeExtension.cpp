@@ -120,22 +120,94 @@ void UKeyframeExtension::TossSequence(UActorSequenceComponent* InActorSequenceCo
 			{
 				return;
 			}
-
-			Network = NewObject<UPCMGNeuralNetwork>((UObject*)GetTransientPackage(), UPCMGNeuralNetwork::StaticClass());
-
-			if (Network != nullptr)
+			
+			switch (PCMGParams.Model)
 			{
-				if (!bModified)
+				case EPCMGModel::PPO_MLP:
+				case EPCMGModel::PPO_LSTM:
+				case EPCMGModel::SAC:
 				{
-					DuplicateRawData(Channels);
-					bModified = true;
-				}
+					Network = NewObject<UPCMGNeuralNetwork>((UObject*)GetTransientPackage(), UPCMGNeuralNetwork::StaticClass());
 
-				ConstructInput(Input, Channels);
-				Network->RunModel(PCMGParams.Model, Input, Output);
-				ApplyOutput(Output, Channels, InMovieSequence);
+					if (Network != nullptr)
+					{
+						if (!bModified)
+						{
+							DuplicateRawData(Channels);
+							bModified = true;
+						}
+
+						ConstructInput(Input, Channels);
+						Network->RunModel(PCMGParams.Model, Input, Output);
+						ApplyOutput(Output, Channels, InMovieSequence);
+					}
+				}
+				break;
+				case EPCMGModel::Magnetic:
+				{
+
+				}
+				break;
+				case EPCMGModel::Function:
+				{
+					GetFunctionOutput(PCMGParams.FunctionParams, Output);
+					ApplyOutput(Output, Channels, InMovieSequence);
+				}
+				break;
+				default: { }
 			}
 		}
+	}
+}
+
+void UKeyframeExtension::GetFunctionOutput(FFunctionParamsCollection FunctionParams, TArray<float>& Output)
+{
+	for (int i = 0; i <= 25; ++i)
+	{
+		float CurrentTime = i * 0.2f;
+		float X = FunctionParams.XFuncParams.A1 * FMath::Exp(FunctionParams.XFuncParams.A2 * CurrentTime)
+				* FMath::Sin(FunctionParams.XFuncParams.B1 * CurrentTime + FunctionParams.XFuncParams.B2)
+				+ FunctionParams.XFuncParams.C1 * CurrentTime * CurrentTime * CurrentTime
+				+ FunctionParams.XFuncParams.C2 * CurrentTime * CurrentTime
+				+ FunctionParams.XFuncParams.C3 * CurrentTime
+				+ FunctionParams.XFuncParams.D;
+		float Y = FunctionParams.YFuncParams.A1 * FMath::Exp(FunctionParams.YFuncParams.A2 * CurrentTime)
+				* FMath::Sin(FunctionParams.YFuncParams.B1 * CurrentTime + FunctionParams.YFuncParams.B2)
+				+ FunctionParams.YFuncParams.C1 * CurrentTime * CurrentTime * CurrentTime
+				+ FunctionParams.YFuncParams.C2 * CurrentTime * CurrentTime
+				+ FunctionParams.YFuncParams.C3 * CurrentTime
+				+ FunctionParams.YFuncParams.D;
+		float Z = FunctionParams.ZFuncParams.A1 * FMath::Exp(FunctionParams.ZFuncParams.A2 * CurrentTime)
+				* FMath::Sin(FunctionParams.ZFuncParams.B1 * CurrentTime + FunctionParams.ZFuncParams.B2)
+				+ FunctionParams.ZFuncParams.C1 * CurrentTime * CurrentTime * CurrentTime
+				+ FunctionParams.ZFuncParams.C2 * CurrentTime * CurrentTime
+				+ FunctionParams.ZFuncParams.C3 * CurrentTime
+				+ FunctionParams.ZFuncParams.D;
+		float Roll = FunctionParams.RollFuncParams.A1 * FMath::Exp(FunctionParams.RollFuncParams.A2 * CurrentTime)
+				* FMath::Sin(FunctionParams.RollFuncParams.B1 * CurrentTime + FunctionParams.RollFuncParams.B2)
+				+ FunctionParams.RollFuncParams.C1 * CurrentTime * CurrentTime * CurrentTime
+				+ FunctionParams.RollFuncParams.C2 * CurrentTime * CurrentTime
+				+ FunctionParams.RollFuncParams.C3 * CurrentTime
+				+ FunctionParams.RollFuncParams.D;
+		float Pitch = FunctionParams.PitchFuncParams.A1 * FMath::Exp(FunctionParams.PitchFuncParams.A2 * CurrentTime)
+				* FMath::Sin(FunctionParams.PitchFuncParams.B1 * CurrentTime + FunctionParams.PitchFuncParams.B2)
+				+ FunctionParams.PitchFuncParams.C1 * CurrentTime * CurrentTime * CurrentTime
+				+ FunctionParams.PitchFuncParams.C2 * CurrentTime * CurrentTime
+				+ FunctionParams.PitchFuncParams.C3 * CurrentTime
+				+ FunctionParams.PitchFuncParams.D;
+		float Yaw = FunctionParams.YawFuncParams.A1 * FMath::Exp(FunctionParams.YawFuncParams.A2 * CurrentTime)
+				* FMath::Sin(FunctionParams.YawFuncParams.B1 * CurrentTime + FunctionParams.YawFuncParams.B2)
+				+ FunctionParams.YawFuncParams.C1 * CurrentTime * CurrentTime * CurrentTime
+				+ FunctionParams.YawFuncParams.C2 * CurrentTime * CurrentTime
+				+ FunctionParams.YawFuncParams.C3 * CurrentTime
+				+ FunctionParams.YawFuncParams.D;
+
+		Output.Add(X);
+		Output.Add(Y);
+		Output.Add(Z);
+		Output.Add(Roll);
+		Output.Add(Pitch);
+		Output.Add(Yaw);
 	}
 }
 
@@ -173,32 +245,32 @@ void UKeyframeExtension::ConstructInput(TArray<float>& Input, const TArrayView<F
 	Input.Add(PCMGParams.Ranges.PitchVelocityRange[1]);
 	Input.Add(PCMGParams.Ranges.YawVelocityRange[0]);
 	Input.Add(PCMGParams.Ranges.YawVelocityRange[1]);
-
-	float XAccelerationMinimum     = FMath::Max<float>(PCMGParams.Ranges.XAccelerationRange[0],     2.5 * (PCMGParams.Ranges.XVelocityRange[0] - PCMGParams.Ranges.XVelocityRange[1]));
-	float XAccelerationMaximum     = FMath::Min<float>(PCMGParams.Ranges.XAccelerationRange[1],		2.5 * (PCMGParams.Ranges.XVelocityRange[1] - PCMGParams.Ranges.XVelocityRange[0]));
-	float YAccelerationMinimum     = FMath::Max<float>(PCMGParams.Ranges.YAccelerationRange[0],		2.5 * (PCMGParams.Ranges.YVelocityRange[0] - PCMGParams.Ranges.YVelocityRange[1]));
-	float YAccelerationMaximum     = FMath::Min<float>(PCMGParams.Ranges.YAccelerationRange[1],		2.5 * (PCMGParams.Ranges.YVelocityRange[1] - PCMGParams.Ranges.YVelocityRange[0]));
-	float ZAccelerationMinimum     = FMath::Max<float>(PCMGParams.Ranges.ZAccelerationRange[0],		2.5 * (PCMGParams.Ranges.ZVelocityRange[0] - PCMGParams.Ranges.ZVelocityRange[1]));
-	float ZAccelerationMaximum     = FMath::Min<float>(PCMGParams.Ranges.ZAccelerationRange[1],		2.5 * (PCMGParams.Ranges.ZVelocityRange[1] - PCMGParams.Ranges.ZVelocityRange[0]));
-	float RollAccelerationMinimum  = FMath::Max<float>(PCMGParams.Ranges.RollAccelerationRange[0],  2.5 * (PCMGParams.Ranges.RollVelocityRange[0] - PCMGParams.Ranges.RollVelocityRange[1]));
-	float RollAccelerationMaximum  = FMath::Min<float>(PCMGParams.Ranges.RollAccelerationRange[1],  2.5 * (PCMGParams.Ranges.RollVelocityRange[1] - PCMGParams.Ranges.RollVelocityRange[0]));
-	float PitchAccelerationMinimum = FMath::Max<float>(PCMGParams.Ranges.PitchAccelerationRange[0], 2.5 * (PCMGParams.Ranges.PitchVelocityRange[0] - PCMGParams.Ranges.PitchVelocityRange[1]));
-	float PitchAccelerationMaximum = FMath::Min<float>(PCMGParams.Ranges.PitchAccelerationRange[1], 2.5 * (PCMGParams.Ranges.PitchVelocityRange[1] - PCMGParams.Ranges.PitchVelocityRange[0]));
-	float YawAccelerationMinimum   = FMath::Max<float>(PCMGParams.Ranges.YawAccelerationRange[0],   2.5 * (PCMGParams.Ranges.YawVelocityRange[0] - PCMGParams.Ranges.YawVelocityRange[1]));
-	float YawAccelerationMaximum   = FMath::Min<float>(PCMGParams.Ranges.YawAccelerationRange[1],   2.5 * (PCMGParams.Ranges.YawVelocityRange[1] - PCMGParams.Ranges.YawVelocityRange[0]));
-
-	Input.Add(XAccelerationMinimum);
-	Input.Add(XAccelerationMaximum);
-	Input.Add(YAccelerationMinimum);
-	Input.Add(YAccelerationMaximum);
-	Input.Add(ZAccelerationMinimum);
-	Input.Add(ZAccelerationMaximum);
-	Input.Add(RollAccelerationMinimum);
-	Input.Add(RollAccelerationMaximum);
-	Input.Add(PitchAccelerationMinimum);
-	Input.Add(PitchAccelerationMaximum);
-	Input.Add(YawAccelerationMinimum);
-	Input.Add(YawAccelerationMaximum);
+	/*
+	float XAccelerationMinimum     = FMath::Max<float>(PCMGParams.Ranges.XAccelerationRange[0],     PCMGParams.Ranges.XVelocityRange[0] - PCMGParams.Ranges.XVelocityRange[1]);
+	float XAccelerationMaximum     = FMath::Min<float>(PCMGParams.Ranges.XAccelerationRange[1],	    PCMGParams.Ranges.XVelocityRange[1] - PCMGParams.Ranges.XVelocityRange[0]);
+	float YAccelerationMinimum     = FMath::Max<float>(PCMGParams.Ranges.YAccelerationRange[0],		PCMGParams.Ranges.YVelocityRange[0] - PCMGParams.Ranges.YVelocityRange[1]);
+	float YAccelerationMaximum     = FMath::Min<float>(PCMGParams.Ranges.YAccelerationRange[1],		PCMGParams.Ranges.YVelocityRange[1] - PCMGParams.Ranges.YVelocityRange[0]);
+	float ZAccelerationMinimum     = FMath::Max<float>(PCMGParams.Ranges.ZAccelerationRange[0],		PCMGParams.Ranges.ZVelocityRange[0] - PCMGParams.Ranges.ZVelocityRange[1]);
+	float ZAccelerationMaximum     = FMath::Min<float>(PCMGParams.Ranges.ZAccelerationRange[1],		PCMGParams.Ranges.ZVelocityRange[1] - PCMGParams.Ranges.ZVelocityRange[0]);
+	float RollAccelerationMinimum  = FMath::Max<float>(PCMGParams.Ranges.RollAccelerationRange[0],  PCMGParams.Ranges.RollVelocityRange[0] - PCMGParams.Ranges.RollVelocityRange[1]);
+	float RollAccelerationMaximum  = FMath::Min<float>(PCMGParams.Ranges.RollAccelerationRange[1],  PCMGParams.Ranges.RollVelocityRange[1] - PCMGParams.Ranges.RollVelocityRange[0]);
+	float PitchAccelerationMinimum = FMath::Max<float>(PCMGParams.Ranges.PitchAccelerationRange[0], PCMGParams.Ranges.PitchVelocityRange[0] - PCMGParams.Ranges.PitchVelocityRange[1]);
+	float PitchAccelerationMaximum = FMath::Min<float>(PCMGParams.Ranges.PitchAccelerationRange[1], PCMGParams.Ranges.PitchVelocityRange[1] - PCMGParams.Ranges.PitchVelocityRange[0]);
+	float YawAccelerationMinimum   = FMath::Max<float>(PCMGParams.Ranges.YawAccelerationRange[0],   PCMGParams.Ranges.YawVelocityRange[0] - PCMGParams.Ranges.YawVelocityRange[1]);
+	float YawAccelerationMaximum   = FMath::Min<float>(PCMGParams.Ranges.YawAccelerationRange[1],   PCMGParams.Ranges.YawVelocityRange[1] - PCMGParams.Ranges.YawVelocityRange[0]);
+	*/
+	Input.Add(PCMGParams.Ranges.XAccelerationRange[0]);
+	Input.Add(PCMGParams.Ranges.XAccelerationRange[1]);
+	Input.Add(PCMGParams.Ranges.YAccelerationRange[0]);
+	Input.Add(PCMGParams.Ranges.YAccelerationRange[1]);
+	Input.Add(PCMGParams.Ranges.ZAccelerationRange[0]);
+	Input.Add(PCMGParams.Ranges.ZAccelerationRange[1]);
+	Input.Add(PCMGParams.Ranges.RollAccelerationRange[0]);
+	Input.Add(PCMGParams.Ranges.RollAccelerationRange[1]);
+	Input.Add(PCMGParams.Ranges.PitchAccelerationRange[0]);
+	Input.Add(PCMGParams.Ranges.PitchAccelerationRange[1]);
+	Input.Add(PCMGParams.Ranges.YawAccelerationRange[0]);
+	Input.Add(PCMGParams.Ranges.YawAccelerationRange[1]);
 
 	for (int i = 0; i < 54; ++i)
 		Input.Add(0);
