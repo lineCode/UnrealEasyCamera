@@ -123,8 +123,7 @@ void UKeyframeExtension::TossSequence(UActorSequenceComponent* InActorSequenceCo
 			
 			switch (PCMGParams.Model)
 			{
-				case EPCMGModel::PPO_MLP:
-				case EPCMGModel::PPO_LSTM:
+				case EPCMGModel::PPO:
 				case EPCMGModel::SAC:
 				{
 					Network = NewObject<UPCMGNeuralNetwork>((UObject*)GetTransientPackage(), UPCMGNeuralNetwork::StaticClass());

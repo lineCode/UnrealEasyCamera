@@ -16,16 +16,10 @@ void UPCMGNeuralNetwork::RunModel(EPCMGModel ModelType, TArray<float>& Input, TA
 	FString ModelPath;
 	switch (ModelType)
 	{
-		case EPCMGModel::PPO_MLP:
+		case EPCMGModel::PPO:
 		{
 			ModelPathProject = FPaths::ProjectPluginsDir() + "UnrealEasyCamera/EasyCamera/Resources/Models/PPO_MLP.onnx";
 			ModelPathEngine = FPaths::EnginePluginsDir() + "UnrealEasyCamera/EasyCamera/Resources/Models/PPO_MLP.onnx";
-		}
-		break;
-		case EPCMGModel::PPO_LSTM:
-		{
-			ModelPathProject = FPaths::ProjectPluginsDir() + "UnrealEasyCamera/EasyCamera/Resources/Models/PPO_LSTM.onnx";
-			ModelPathEngine = FPaths::EnginePluginsDir() + "UnrealEasyCamera/EasyCamera/Resources/Models/PPO_LSTM.onnx";
 		}
 		break;
 		case EPCMGModel::SAC:

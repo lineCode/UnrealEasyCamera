@@ -199,9 +199,7 @@ UENUM()
 enum class EPCMGModel : uint8
 {
 	/** Reinforcement learning - PPO model. Implementation based on https://iclr-blog-track.github.io/2022/03/25/ppo-implementation-details/. */
-	PPO_MLP       UMETA(DisplayName = "PPO/MLP"),
-	/** Reinforcement learning - PPO model with LSTM. Implementation based on https://iclr-blog-track.github.io/2022/03/25/ppo-implementation-details/. */
-	PPO_LSTM      UMETA(DisplayName = "PPO/LSTM"),
+	PPO           UMETA(DisplayName = "PPO"),
 	/** Reinforcement learning - SAC model. Implementation based on https://github.com/XinJingHao/SAC-Continuous-Pytorch/blob/main/SAC.py. */
 	SAC           UMETA(DisplayName = "SAC"),
 	/** A randomized magnetic field algorithm. */
@@ -967,7 +965,7 @@ public:
 	FPCMGRangeParams Ranges;
 
 	FPCMGParams()
-		: Model(EPCMGModel::PPO_MLP)
+		: Model(EPCMGModel::SAC)
 		, FunctionParams(FFunctionParamsCollection())
 		, PosTurbulence(0)
 		, RotTurbulence(0)
