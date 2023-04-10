@@ -623,6 +623,64 @@ public:
 	}
 };
 
+/** A struct consisting of a blendable and its corresponding weight. */
+USTRUCT(BlueprintType)
+struct FWeightedBlendableObject
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	/** Blendable */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TScriptInterface<IBlendableInterface> InBlendableObject;
+
+	/** Weight. The amount of influence the volume's properties have. A value of 1 has full effect, while a value of 0 has no effect. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Weight;
+
+	/** Time used to blend into this post process effect. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float BlendInTime;
+
+	/** Duration for this post process effect. O means endlessness. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Duration;
+
+	/** Time used to blend out of this post process effect. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float BlendOutTime;
+
+	float ElapsedBlendInTime;
+	float ElapsedDurationTime;
+	float ElapsedBlendOutTime;
+	bool bHasCompleted;
+
+	FWeightedBlendableObject()
+		: Weight(1.f)
+		, BlendInTime(0.5f)
+		, Duration(0.f)
+		, BlendOutTime(0.5f)
+	{
+		ElapsedBlendInTime = 0.f;
+		ElapsedDurationTime = 0.f;
+		ElapsedBlendOutTime = 0.f;
+		bHasCompleted = false;
+	}
+
+	FWeightedBlendableObject(const TScriptInterface<IBlendableInterface>& InBlendable, const float& InWeight, const float& InBlendInTime, const float& InDuration, const float& InBlendOutTime)
+		: InBlendableObject(InBlendable)
+		, Weight(InWeight)
+		, BlendInTime(InBlendInTime)
+		, Duration(InDuration)
+		, BlendOutTime(InBlendOutTime)
+	{
+		ElapsedBlendInTime = 0.f;
+		ElapsedDurationTime = 0.f;
+		ElapsedBlendOutTime = 0.f;
+		bHasCompleted = false;
+	}
+};
+
 /** A struct packing some oscillation parameters.  */
 USTRUCT(BlueprintType)
 struct FPackedOscillationParams

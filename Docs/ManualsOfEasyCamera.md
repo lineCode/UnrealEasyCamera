@@ -125,6 +125,20 @@ If you've already enabled `EPlayerCameraManager` in game mode, you can readily u
 Post Process Materials](https://docs.unrealengine.com/5.1/en-US/post-process-materials-in-unreal-engine/) and [Post Process Effects](https://docs.unrealengine.com/5.1/en-US/post-process-effects-in-unreal-engine/) documentations for more information. Once you have created a post process material, you can add it via node `AddBlendables`, or remove it via node `RemoveBlendable`. If you are using post process volumes, more blueprint nodes can be leveraged to give a finer control over PP effects along with blending.  
 ![](Pics/BasicUses/add-blendable.png)  
 
+If you are using blendables, you should setup your materials following the next steps to make post process effects work correctly:
+
+1. Create a material with `Post Process` domain. In the material blueprint, before the output, insert a `lerp` node with the vanilla source as first Input, your post process effect as second input and a parameterized scalar as the third input Alpha. Set the scalar as default 0.  
+![](Pics/BasicUses/material-weight-1.png)  
+2. Create a material instance from this material and toggle on the blend parameter and set it to 1.   
+![](Pics/BasicUses/material-weight-2.png)  
+3. At where you want to use this material, invoke the `Add Blendable` node and pass in the material instance you just created. Set other parameters as you want.  
+![](Pics/BasicUses/material-weight-3.png)  
+4. Play the game and you will see the effect now works as expected!  
+![](Pics/gifs/material-weight.gif)  
+5. If you followed these steps and observe anomaly, you can delete the blend parameter and re-add it. If it still fails, check the material blueprint and make sure the blend parameter is the only scalar parameter (1) within range 0 and 1 and (2) set default as 0. You can refer to [this discussion](https://forums.unrealengine.com/t/post-process-blend-weight-acts-as-boolean-no-fade-in-out/368921/6) for further information.
+
+
+
 ## Camera Lens Effects
 Adding camera lens effects is quite simple. You can use Unreal built-in blueprint node *AddGenericCameraLensEffect* to create a camera lens effect of a given class, node *ClearCameraLensEffects* to remove all camera lens effects, and node *RemoveGenericCameraLensEffect* to remove the given lens effect. All you need to do is to create a lens effect emitter class, and pass it into the node you want to call.  
 ![](Pics/BasicUses/add-lens.png) 
@@ -862,6 +876,9 @@ Applies a post process material to the player camera manager.
 |  |Target  | A `EPlayerCameraManager` target actor. |
 |  | InBlendableObject | The post process material to add. |
 |  | InWeight|Amount of influence the post process effect will have. 1 means full effect, while 0 means no effect.|
+|  | InBlendInTime | Time used to blend into this post process.|
+|  | InDuration | Duration for this post process. Set as 0 to keep it infinite.|
+|  | InBlendOutTime| Time used to blend out of this post process.|
 
 ### RemoveBlendable
 Removes a post process material added to the player camera manager.
@@ -874,6 +891,16 @@ Removes a post process material added to the player camera manager.
 |  |Target  | A `EPlayerCameraManager` target actor. |
 |  | InBlendableObject | The post process material to remove. |
 
+### RemoveCompletedBlendables
+Removes all completed post processes blendables (materials).
+
+![](Pics/nodes/playercameramanager/removecompletedblendable.png)
+
+|Input / Output| |Description|
+|  :---  | :--- |:--- |
+|Input|||
+|  |Target  | A `EPlayerCameraManager` target actor. |
+
 ### AddPostProcess
 Add a post process to the player camera manager.
 
@@ -883,7 +910,7 @@ Add a post process to the player camera manager.
 |  :---  | :--- |:--- |
 |Input|||
 |  |Target  | A `EPlayerCameraManager` target actor. |
-|  | InBlendableObject | The post process material to add. |
+|  | InBlendableObject | The post process settings to add. |
 |  | InWeight|Amount of influence the post process effect will have. 1 means full effect, while 0 means no effect.|
 |  | InBlendInTime | Time used to blend into this post process.|
 |  | InDuration | Duration for this post process. Set as 0 to keep it infinite.|

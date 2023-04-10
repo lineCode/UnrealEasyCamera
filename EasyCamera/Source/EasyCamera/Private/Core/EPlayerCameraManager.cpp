@@ -24,55 +24,74 @@ void AEPlayerCameraManager::ApplyCameraModifiers(float DeltaTime, FMinimalViewIn
 {
 	Super::ApplyCameraModifiers(DeltaTime, InOutPOV);
 
-	/** For post process materials. */
-	if (MaterialWeight > 0.f)
+	/** For post process blendables. */
+	check(PostProcessMaterialSettings.WeightedBlendables.Array.Num() == WeightedBlendables.Num());
+
+	for (int i = 0; i < WeightedBlendables.Num(); ++i)
 	{
-		AddCachedPPBlend(PostProcessMaterialSettings, MaterialWeight);
+		FWeightedBlendableObject& WeightedBB = WeightedBlendables[i];
+		float Weight = GetWeight(WeightedBB.Weight, WeightedBB.BlendInTime, WeightedBB.Duration, WeightedBB.BlendOutTime, WeightedBB.ElapsedBlendInTime, WeightedBB.ElapsedDurationTime, WeightedBB.ElapsedBlendOutTime, WeightedBB.bHasCompleted, DeltaTime);
+		if (!WeightedBB.bHasCompleted)
+		{
+			/** The per-material weight only works in a very weird way requiring specific material setups.
+			 *  See https://forums.unrealengine.com/t/post-process-blend-weight-acts-as-boolean-no-fade-in-out/368921/6.
+			 */
+			PostProcessMaterialSettings.WeightedBlendables.Array[i].Weight = Weight;
+		}
+		else
+		{
+			PostProcessMaterialSettings.WeightedBlendables.Array[i].Weight = 0.0f;
+		}
 	}
+
+	AddCachedPPBlend(PostProcessMaterialSettings, MaterialWeight);
 
 	/** For post process settings. */
 	for (FWeightedPostProcess& WeightedPP : WeightedPostProcesses)
 	{
-		/** If blending in. */
-		if (WeightedPP.ElapsedBlendInTime < WeightedPP.BlendInTime)
+		float Weight = GetWeight(WeightedPP.Weight, WeightedPP.BlendInTime, WeightedPP.Duration, WeightedPP.BlendOutTime, WeightedPP.ElapsedBlendInTime, WeightedPP.ElapsedDurationTime, WeightedPP.ElapsedBlendOutTime, WeightedPP.bHasCompleted, DeltaTime);
+		if (!WeightedPP.bHasCompleted)
 		{
-			WeightedPP.ElapsedBlendInTime = FMath::Clamp(WeightedPP.ElapsedBlendInTime + DeltaTime, 0, WeightedPP.BlendInTime);
-			float Weight = GetBlendedWeight(0.0f, WeightedPP.Weight, WeightedPP.BlendInTime, WeightedPP.ElapsedBlendInTime);
-			if (Weight > 0.f)
-				AddCachedPPBlend(WeightedPP.PPSetting, Weight);
-			continue;
+			AddCachedPPBlend(WeightedPP.PPSetting, Weight);
 		}
+	}
+}
 
-		/** Has blended in and duration is zero (endless). */
-		if (WeightedPP.Duration == 0.0f)
-		{
-			if (WeightedPP.Weight > 0.f)
-				AddCachedPPBlend(WeightedPP.PPSetting, WeightedPP.Weight);
-			continue;
-		}
+float AEPlayerCameraManager::GetWeight(float& Weight, float& BlendInTime, float& Duration, float& BlendOutTime, float& ElapsedBlendInTime, float& ElapsedDurationTime, float& ElapsedBlendOutTime, bool& bHasCompleted, const float& DeltaTime)
+{
+	/** If blending in. */
+	if (ElapsedBlendInTime < BlendInTime)
+	{
+		ElapsedBlendInTime = FMath::Clamp(ElapsedBlendInTime + DeltaTime, 0, BlendInTime);
+		float ResultWeight = GetBlendedWeight(0.0f, Weight, BlendInTime, ElapsedBlendInTime);
+		return ResultWeight;
+	}
 
-		/** Has blended in and duration is not zero.  */
-		if (WeightedPP.Duration != 0.0f && WeightedPP.ElapsedDurationTime < WeightedPP.Duration)
-		{
-			WeightedPP.ElapsedDurationTime += DeltaTime;
-			if (WeightedPP.Weight > 0.f)
-				AddCachedPPBlend(WeightedPP.PPSetting, WeightedPP.Weight);
-			continue;
-		}
-		
-		/** If blending out. */
-		if (WeightedPP.ElapsedBlendOutTime < WeightedPP.BlendOutTime)
-		{
-			WeightedPP.ElapsedBlendOutTime = FMath::Clamp(WeightedPP.ElapsedBlendOutTime + DeltaTime, 0, WeightedPP.BlendOutTime);
-			float Weight = GetBlendedWeight(WeightedPP.Weight, 0.0f, WeightedPP.BlendOutTime, WeightedPP.ElapsedBlendOutTime);
-			if (Weight > 0.f)
-				AddCachedPPBlend(WeightedPP.PPSetting, Weight);
-		}
-		/** Has finished blending out. Set bHasCompleted to true. */
-		else
-		{
-			WeightedPP.bHasCompleted = true;
-		}
+	/** Has blended in and duration is zero (infinite). */
+	else if (Duration == 0.0f)
+	{
+		return Weight;
+	}
+
+	/** Has blended in and duration is not zero.  */
+	else if (Duration != 0.0f && ElapsedDurationTime < Duration)
+	{
+		ElapsedDurationTime += DeltaTime;
+		return Weight;
+	}
+
+	/** If blending out. */
+	else if (ElapsedBlendOutTime < BlendOutTime)
+	{
+		ElapsedBlendOutTime = FMath::Clamp(ElapsedBlendOutTime + DeltaTime, 0, BlendOutTime);
+		float ResultWeight = GetBlendedWeight(Weight, 0.0f, BlendOutTime, ElapsedBlendOutTime);
+		return ResultWeight;
+	}
+	/** Has finished blending out. Set bHasCompleted to true. */
+	else
+	{
+		bHasCompleted = true;
+		return 0.0f;
 	}
 }
 
@@ -101,14 +120,28 @@ void AEPlayerCameraManager::DoUpdateCamera(float DeltaTime)
 	}
 }
 
-void AEPlayerCameraManager::AddBlendable(const TScriptInterface<IBlendableInterface>& InBlendableObject, const float InWeight)
+void AEPlayerCameraManager::AddBlendable(const TScriptInterface<IBlendableInterface>& InBlendableObject, const float InWeight, const float InBlendInTime, const float InDuration, const float InBlendOutTime)
 {
-	PostProcessMaterialSettings.AddBlendable(InBlendableObject, InWeight);
+	RemoveCompletedBlendables();
+
+	FWeightedBlendableObject NewWeightedBlendable = FWeightedBlendableObject(InBlendableObject, InWeight, InBlendInTime, InDuration, InBlendOutTime);
+	PostProcessMaterialSettings.AddBlendable(InBlendableObject, 0.0f);
+	WeightedBlendables.Add(NewWeightedBlendable);
 }
 
 void AEPlayerCameraManager::RemoveBlendable(const TScriptInterface<IBlendableInterface>& InBlendableObject)
 {
 	PostProcessMaterialSettings.RemoveBlendable(InBlendableObject);
+
+	for (int i = 0, count = WeightedBlendables.Num(); i < count; ++i)
+	{
+		FWeightedBlendableObject& WeightedBlendable = WeightedBlendables[i];
+		if (WeightedBlendable.InBlendableObject.GetObject() == InBlendableObject.GetObject())
+		{
+			WeightedBlendables.RemoveAt(i);
+			break;
+		}
+	}
 }
 
 void AEPlayerCameraManager::AddPostProcess(const FPostProcessSettings& InPostProcess, const float InWeight, const float InBlendInTime, const float InDuration, const float InBlendOutTime)
@@ -130,7 +163,22 @@ void AEPlayerCameraManager::RemoveCompletedPostProcesses()
 			--i;
 			--count;
 		}
-	}	
+	}
+}
+
+void AEPlayerCameraManager::RemoveCompletedBlendables()
+{
+	for (int i = 0, count = WeightedBlendables.Num(); i < count; ++i)
+	{
+		FWeightedBlendableObject& WeightedBlendable = WeightedBlendables[i];
+		if (WeightedBlendable.bHasCompleted)
+		{
+			PostProcessMaterialSettings.RemoveBlendable(WeightedBlendable.InBlendableObject);
+			WeightedBlendables.RemoveAt(i);
+			--i;
+			--count;
+		}
+	}
 }
 
 void AEPlayerCameraManager::RemoveAllPostProcesses()

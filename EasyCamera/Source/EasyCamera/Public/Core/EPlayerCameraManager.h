@@ -29,6 +29,7 @@ public:
 protected:
 	FPostProcessSettings PostProcessMaterialSettings;
 	TArray<FWeightedPostProcess> WeightedPostProcesses;
+	TArray<FWeightedBlendableObject> WeightedBlendables;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float MaterialWeight = 1.0f;
@@ -49,20 +50,25 @@ protected:
 	virtual void DoUpdateCamera(float DeltaTime) override;
 
 public:
-	/** Applies a post process material to the player camera manager. 
+	/** Applies a post process material to the player camera manager. The InWeight here is different from that in AddPostProcess. This one may not perform as you expected.
 	 *  @param InBlendableObject - The post process material to add.
 	 *  @param InWeight - Amount of influence the post process effect will have. 1 means full effect, while 0 means no effect.
-	 *  @TODO: removing reference will crash engine. I do not know why, but there might be a workaround. 
+	 * 	@param InBlendInTime - Time used to blend into this post process.
+	 *	@param InDuration - Duration for this post process. Set as 0 to keep it infinite.
+	 *  @param InBlendOutTime - Time used to blend out of this post process.
 	 */
 	UFUNCTION(BlueprintCallable, Category = "ECamera|PostProcess")
-	void AddBlendable(const TScriptInterface<IBlendableInterface>& InBlendableObject, const float InWeight = 1.f);
+	void AddBlendable(const TScriptInterface<IBlendableInterface>& InBlendableObject, const float InWeight = 1.f, const float InBlendInTime = 0.5f, const float InDuration = 0.0f, const float InBlendOutTime = 0.5f);
 
 	/** Removes a post process material added to the player camera manager.
 	 *  @param InBlendableObject - The post process material to remove.
-	 *  @TODO: removing reference will crash engine. I do not know why, but there might be a workaround. 
 	 */
 	UFUNCTION(BlueprintCallable, Category = "ECamera|PostProcess")
 	void RemoveBlendable(const TScriptInterface<IBlendableInterface>& InBlendableObject);
+
+	/** Removes all completed blendables. */
+	UFUNCTION(BlueprintCallable, Category = "ECamera|PostProcess")
+	void RemoveCompletedBlendables();
 
 	/** Add a post process to the player camera manager.
 	 *  @param InPostProcess - The post process setting to add.
@@ -195,4 +201,5 @@ public:
 
 private:
 	float GetBlendedWeight(const float& StartWeight, const float& TargetWeight, const float& BlendTime, const float& ElapsedTime);
+	float GetWeight(float& Weight, float& BlendInTime, float& Duration, float& BlendOutTime, float& ElapsedBlendInTime, float& ElapsedDurationTime, float& ElapsedBlendOutTime, bool& bHasCompleted, const float& DeltaTime);
 };

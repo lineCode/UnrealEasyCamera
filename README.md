@@ -17,3 +17,4 @@ TODOs for version *alpha*:
 - [x] A better implementation to receive input for **ControlAim**.
 - [x] Implment **AimAssist**, in ControlAim component.
 - [ ] Implement **ProceduralMotionGeneration**. This functionality enables you to define custom camera motion curves by keyframing transforms in world space without opening Sequencer. Moreover, you can generate random motion curves based on the curve you just created.
+- [ ] Implement **EventReceiverExtension**. This extension enables users to define events in response to specific messages from gameplay. Such events can be used to alter camera parameters.
